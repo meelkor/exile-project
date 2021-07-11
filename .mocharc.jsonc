@@ -1,0 +1,12 @@
+{
+    "extension": [
+        "ts"
+    ],
+    "require": [
+        "ts-node/register",
+        "module-alias/register",
+        "./test/init.ts"
+    ],
+    "recursive": true,
+    "extglob": true
+}
