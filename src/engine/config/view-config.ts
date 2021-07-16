@@ -7,4 +7,3 @@ export namespace ViewConfig {
         canvas: HTMLCanvasElement;
     }
 }
-
