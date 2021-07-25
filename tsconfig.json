@@ -17,8 +17,7 @@
     "forceConsistentCasingInFileNames": true,
     "noEmitOnError": false,
     "paths": {
-        "@exile/*": ["src/*"],
+        "@@/*": ["packages/*/src/"],
     },
-  },
-  "include": ["./src/**/*.ts"]
+  }
 }

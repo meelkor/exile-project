@@ -1,5 +1,5 @@
 import { should } from 'chai';
-import assert from 'assert';
+import { assert } from '@exile/common/utils/assert';
 
 should();
 
