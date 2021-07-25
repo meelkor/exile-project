@@ -7,6 +7,7 @@ export enum ViewEventType {
     Click,
     MouseDown,
     MouseUp,
+    Wheel,
 }
 
 export type ViewEventListener<K extends ViewEventType> = (e: ViewEventMap[K]) => boolean;
@@ -18,6 +19,7 @@ export interface ViewEventMap extends Record<ViewEventType, unknown> {
     [ViewEventType.Click]: ButtonViewEvent;
     [ViewEventType.MouseDown]: ButtonViewEvent;
     [ViewEventType.MouseUp]: ButtonViewEvent;
+    [ViewEventType.Wheel]: WheelViewEvent;
 }
 
 export interface MouseMoveViewEvent {
@@ -27,4 +29,9 @@ export interface MouseMoveViewEvent {
 
 export interface ButtonViewEvent {
     pos: Pos;
+}
+
+export interface WheelViewEvent {
+    pos: Pos;
+    delta: number;
 }

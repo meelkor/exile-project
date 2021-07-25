@@ -33,13 +33,13 @@ export abstract class TreeNode<TChild extends TreeNode<any> = TreeNode<any>> ext
 
     protected children: Set<TChild> = new Set();
 
-    protected readonly instanceId: number = Counter.make();
-
     protected abstract onDestroy(): void;
 
     protected abstract onAdd(): void;
 
     protected abstract onTick(): void;
+
+    private readonly instanceId: number = Counter.make();
 
     protected add(child: TChild): void {
         assert(!this.children.has(child), `Node of type ${TreeNode.getName(child)} is already a child of node of type ${TreeNode.getName(this)}`);

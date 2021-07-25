@@ -9,7 +9,7 @@ export abstract class Events<TEvent extends SupportedEventType, TPayloads extend
 
     private listenersByNode: Map<TreeNode | null, Map<TEvent, EventHandler<TEvent, TPayloads, TReturn>[]>> = new Map();
 
-    public on(event: TEvent, handler: (payload: TPayloads[TEvent]) => TReturn): void {
+    public on<T extends TEvent>(event: T, handler: (payload: TPayloads[T]) => TReturn): void {
         const currentNode = GlobalTreeNode.get();
 
         let set = this.listeners.get(event);
@@ -19,7 +19,7 @@ export abstract class Events<TEvent extends SupportedEventType, TPayloads extend
             this.listeners.set(event, set);
         }
 
-        set.add(handler);
+        set.add(handler as EventHandler<TEvent, TPayloads, TReturn>);
 
         let nodeEventMap = this.listenersByNode.get(currentNode);
 
@@ -35,7 +35,7 @@ export abstract class Events<TEvent extends SupportedEventType, TPayloads extend
             nodeEventMap.set(event, evArray);
         }
 
-        evArray.push(handler);
+        evArray.push(handler as EventHandler<TEvent, TPayloads, TReturn>);
     }
 
     public offNode(node: TreeNode): void {

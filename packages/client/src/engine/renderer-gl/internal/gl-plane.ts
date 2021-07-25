@@ -4,11 +4,15 @@ import { Pos } from '@exile/common/types/geometry';
 import { InjectableGlobal } from '@exile/common/utils/di';
 import * as three from 'three';
 
-export abstract class GlLayer extends InjectableGlobal {
+export abstract class GlPlane extends InjectableGlobal {
+
+    public static getCamera(plane: GlPlane): three.Camera {
+        return plane.camera;
+    }
 
     public abstract readonly scene: three.Scene;
 
-    public abstract readonly camera: three.Camera;
+    protected abstract readonly camera: three.Camera;
 
     private raycaster = new three.Raycaster();
 

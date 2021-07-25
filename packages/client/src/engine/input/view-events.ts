@@ -10,7 +10,7 @@ import { NodeIntersection } from '@exile/client/engine/renderer-gl/internal/inte
  * Service finding components that should handle given raw view events and
  * triggering their event handlers, which may then emit game events.
  */
-export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | undefined> {
+export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | void> {
 
     public static emitEvents(viewEvents: ViewEvents): void {
         viewEvents.emitEvents();
@@ -77,9 +77,15 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | un
             const viewEventType = e.type === CursorEventType.Down
                 ? ViewEventType.MouseDown
                 : ViewEventType.MouseUp;
-            const payload = { pos: e.pos };
 
             for (const int of ints) {
+                const payload = {
+                    pos: {
+                        x: int.position.x,
+                        y: int.position.y,
+                    },
+                };
+
                 if (this.emitIfListens(int.nodeId, viewEventType, payload)) {
                     break;
                 }
@@ -87,14 +93,31 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | un
         } else if (e.type === CursorEventType.Click) {
             const groups = this.groupIntersections(e.from, e.to);
 
-            for (const [int] of groups.both) {
-                if (this.emitIfListens(int.nodeId, ViewEventType.Click, { pos: e.to })) {
+            for (const [, int] of groups.both) {
+                const payload = {
+                    pos: {
+                        x: int.position.x,
+                        y: int.position.y,
+                    },
+                };
+
+                if (this.emitIfListens(int.nodeId, ViewEventType.Click, payload)) {
                     break;
                 }
             }
         } else if (e.type === CursorEventType.Leave) {
             for (const int of this.renderer.project(e.lastPos)) {
                 this.emitIfListens(int.nodeId, ViewEventType.MouseOut, null);
+            }
+        } else if (e.type === CursorEventType.Wheel) {
+            for (const int of this.renderer.project(e.pos)) {
+                this.emitIfListens(int.nodeId, ViewEventType.Wheel, {
+                    delta: e.delta,
+                    pos: {
+                        x: int.position.x,
+                        y: int.position.y,
+                    },
+                });
             }
         }
     }

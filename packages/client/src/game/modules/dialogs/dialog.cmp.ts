@@ -1,6 +1,6 @@
 import { Component } from '@exile/client/engine/component/component';
 import { ViewEventType } from '@exile/client/engine/input/view-event-type';
-import { Ui } from '@exile/client/engine/renderer-gl/ui';
+import { UiPlane } from '@exile/client/engine/renderer-gl/planes/ui-plane';
 import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
 import * as three from 'three';
 import { assert } from '@exile/common/utils/assert';
@@ -11,7 +11,7 @@ export class DialogCmp extends Component {
 
     private texture = this.loader.load('./sk.jpg');
 
-    private ui = this.inject(Ui);
+    private uiPlane = this.inject(UiPlane);
 
     protected onInit(): void {
         const plane = new three.PlaneBufferGeometry(200, 200, 1, 1);
@@ -24,7 +24,7 @@ export class DialogCmp extends Component {
 
         this.dialogMesh.position.set(100, 100, 0);
 
-        this.ui.scene.add(this.dialogMesh);
+        this.uiPlane.scene.add(this.dialogMesh);
 
         this.viewEvents.on(ViewEventType.Click, () => this.toggle());
         this.viewEvents.on(ViewEventType.MouseIn, () => this.setColor(0xff0000));

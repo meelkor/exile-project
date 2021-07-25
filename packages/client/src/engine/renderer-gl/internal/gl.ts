@@ -1,11 +1,12 @@
 import { ViewConfig } from '@exile/client/engine/config/view-config';
+import '@exile/client/engine/renderer-gl/internal/patches/dynamic-fog';
 import { Dimensions } from '@exile/common/types/geometry';
 import { InjectableGlobal } from '@exile/common/utils/di';
-import { WebGLRenderer } from 'three';
+import * as three from 'three';
 
 export class Gl extends InjectableGlobal {
 
-    public readonly renderer: WebGLRenderer;
+    public readonly renderer: three.WebGLRenderer;
 
     public readonly extent: Dimensions;
 
@@ -16,8 +17,9 @@ export class Gl extends InjectableGlobal {
 
         const canvas = this.viewConfig.canvas;
 
-        this.renderer = new WebGLRenderer({
+        this.renderer = new three.WebGLRenderer({
             canvas,
+            antialias: true,
         });
 
         this.extent = {

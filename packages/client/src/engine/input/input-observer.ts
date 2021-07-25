@@ -104,6 +104,18 @@ export class InputObserver extends InjectableGlobal {
             this.pos = undefined;
             this.lastMouseDown = undefined;
         });
+
+        canvas.addEventListener('wheel', e => {
+            e.preventDefault();
+
+            if (this.pos) {
+                this.eventQueue.push({
+                    type: CursorEventType.Wheel,
+                    pos: this.pos,
+                    delta: e.deltaY,
+                });
+            }
+        });
     }
 
     public getEvents(): CursorEvent[] {
@@ -115,7 +127,7 @@ export class InputObserver extends InjectableGlobal {
     }
 }
 
-export type CursorEvent = CursorMoveEvent | CursorDownEvent | CursorUpEvent | CursorClickEvent | CursorLeaveEvent;
+export type CursorEvent = CursorMoveEvent | CursorDownEvent | CursorUpEvent | CursorClickEvent | CursorLeaveEvent | CursorWheelEvent;
 
 export interface CursorMoveEvent {
     type: CursorEventType.Move,
@@ -144,6 +156,12 @@ export interface CursorLeaveEvent {
     lastPos: Pos;
 }
 
+export interface CursorWheelEvent {
+    type: CursorEventType.Wheel,
+    delta: number;
+    pos: Pos;
+}
+
 export enum CursorEventType {
     Move,
     Down,
@@ -153,4 +171,5 @@ export enum CursorEventType {
      * Cursor completely left canvas
      */
     Leave,
+    Wheel,
 }
