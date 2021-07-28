@@ -17,7 +17,8 @@ canvas.height = 720;
 
 document.body.appendChild(canvas);
 
-root.provide(new AppConfig({}));
+root.provide(new AppConfig({
+}));
 root.provide(new ViewConfig({
     canvas,
 }));
