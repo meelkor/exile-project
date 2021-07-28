@@ -1,6 +1,6 @@
-export interface Pos {
-    readonly x: number;
-    readonly y: number;
+export interface Pos<T = number> {
+    readonly x: T;
+    readonly y: T;
 }
 
 export interface Dimensions {

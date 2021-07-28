@@ -16,6 +16,13 @@ module.exports = {
                 },
                 exclude: /node_modules/,
             },
+            {
+                test: /\.(ttf|png)$/,
+                use: {
+                    loader: 'file-loader',
+                },
+                exclude: /node_modules/,
+            },
         ],
     },
     mode: 'development',

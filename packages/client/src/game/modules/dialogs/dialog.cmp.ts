@@ -1,57 +1,102 @@
 import { Component } from '@exile/client/engine/component/component';
-import { ViewEventType } from '@exile/client/engine/input/view-event-type';
-import { UiPlane } from '@exile/client/engine/renderer-gl/planes/ui-plane';
+import { UiPlane, UiSize } from '@exile/client/engine/renderer-gl/planes/ui-plane';
 import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
 import * as three from 'three';
 import { assert } from '@exile/common/utils/assert';
+import { DialogCounter } from '@exile/client/game/modules/dialogs/dialogCounter';
+import { DialogFeature } from '@exile/client/game/modules/dialogs/dialog-feature';
+import { Pos } from '@exile/common/types/geometry';
+import { ViewEventType } from '@exile/client/engine/input/view-event-type';
+import dialogBgUrl from '@exile/client/resources/textures/ui/panel-bg.png';
+import borderAlphaUrl from '@exile/client/resources/textures/ui/panel-border-alpha.png';
 
 export class DialogCmp extends Component {
 
-    private dialogMesh?: NodeMesh<three.PlaneBufferGeometry, three.MeshBasicMaterial>;
+    public width?: UiSize;
 
-    private texture = this.loader.load('./sk.jpg');
+    public zIndex: number = 0;
+
+    public color: number = 0xffe0ee;
+
+    private _offset: Pos = {
+        x: 0,
+        y: 0,
+    };
+
+    private dialogMesh?: NodeMesh<three.PlaneBufferGeometry, three.MeshBasicMaterial>;
 
     private uiPlane = this.inject(UiPlane);
 
+    private dialogCounter = this.inject(DialogCounter);
+
+    private writtenOffset: number = 0;
+
+    public set offset(offset: Pos<DialogOffset>) {
+        this._offset = {
+            x: offset.x === 'auto' ? this.dialogCounter.currentWidth : this.uiPlane.getWidth(offset.x),
+            y: this.uiPlane.getHeight(offset.y),
+        };
+    }
+
+    public addFeature(featCmp: DialogFeature): void {
+        featCmp.offset = this._offset;
+
+        this.add(featCmp);
+    }
+
     protected onInit(): void {
-        const plane = new three.PlaneBufferGeometry(200, 200, 1, 1);
+        assert(this.width, 'No width set');
+
+        const height = this.uiPlane.getHeight('100%');
+        const width = this.uiPlane.getWidth(this.width);
+
+        this.writtenOffset = width - 64;
+
+        this.dialogCounter.announce(this.writtenOffset);
+
+        const plane = new three.PlaneBufferGeometry(width, height, 1, 1);
+        const texture = this.loader.load(dialogBgUrl);
+
+        texture.wrapS = three.RepeatWrapping;
+        texture.wrapT = three.RepeatWrapping;
+
+        texture.repeat.set(width / 512, height / 512);
+        texture.offset.set(width / -512, 0);
+
+        const alphaTexture = this.loader.load(borderAlphaUrl);
+
+        alphaTexture.wrapS = three.RepeatWrapping;
+        alphaTexture.wrapT = three.RepeatWrapping;
+
         const material = new three.MeshBasicMaterial({
-            map: this.texture,
-            combine: three.MixOperation,
+            map: texture,
+            alphaMap: alphaTexture,
+            color: this.color,
         });
+
+        material.transparent = true;
 
         this.dialogMesh = new NodeMesh(plane, material, true);
 
-        this.dialogMesh.position.set(100, 100, 0);
+        this.dialogMesh.position.set(
+            this._offset.x + width / 2,
+            this._offset.y + height / 2,
+            this.zIndex,
+        );
 
         this.uiPlane.scene.add(this.dialogMesh);
 
-        this.viewEvents.on(ViewEventType.Click, () => this.toggle());
-        this.viewEvents.on(ViewEventType.MouseIn, () => this.setColor(0xff0000));
-        this.viewEvents.on(ViewEventType.MouseOut, () => this.setColor(0x00ff00));
+        this.viewEvents.on(ViewEventType.Click, () => true);
+        this.viewEvents.on(ViewEventType.MouseDown, () => true);
+    }
+
+    protected override onDestroy(): void {
+        super.onDestroy();
+
+        this.dialogCounter.remove(this.uiPlane.getWidth(this.writtenOffset));
     }
 
     protected onTick(): void { /** noop */ }
-
-    private toggle(): boolean {
-        assert(this.dialogMesh, 'Dialog component not initialized');
-
-        if (this.dialogMesh.material.map) {
-            this.dialogMesh.material.map = null;
-        } else {
-            this.dialogMesh.material.map = this.texture;
-        }
-
-        this.dialogMesh.material.needsUpdate = true;
-
-        return true;
-    }
-
-    private setColor(color: three.ColorRepresentation): boolean {
-        assert(this.dialogMesh, 'Dialog component not initialized');
-
-        this.dialogMesh.material.color.set(color);
-
-        return true;
-    }
 }
+
+type DialogOffset = UiSize | 'auto';

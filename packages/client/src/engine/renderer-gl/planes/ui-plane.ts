@@ -28,6 +28,10 @@ export class UiPlane extends GlPlane {
         return this.getSize(size, this.gl.extent.width);
     }
 
+    public top(val: number): number {
+        return this.gl.extent.height - val;
+    }
+
     private getSize(size: UiSize, max: number): number {
         if (typeof size === 'number') {
             return size;
@@ -40,7 +44,7 @@ export class UiPlane extends GlPlane {
             const unit = res[2];
 
             if (unit === '%') {
-                return val * max;
+                return val / 100 * max;
             } else {
                 return val;
             }

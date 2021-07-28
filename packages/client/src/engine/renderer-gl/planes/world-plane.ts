@@ -19,7 +19,7 @@ export class WorldPlane extends GlPlane {
         const aspect = this.gl.extent.width / this.gl.extent.height;
 
         this.scene = new three.Scene();
-        this.scene.fog = new three.Fog(0xddddff, 6, 7);
+        this.scene.fog = new three.Fog(0xddddff, 0, 8);
 
         this.camera = new three.PerspectiveCamera(38, aspect);
 

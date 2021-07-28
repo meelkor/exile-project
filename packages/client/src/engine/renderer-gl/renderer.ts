@@ -1,3 +1,4 @@
+import { updateTimeUniforms } from '@exile/client/engine/renderer-gl/extensions/time';
 import { Gl } from '@exile/client/engine/renderer-gl/internal/gl';
 import { GlPlane } from '@exile/client/engine/renderer-gl/internal/gl-plane';
 import { NodeIntersection as NodeIntersection } from '@exile/client/engine/renderer-gl/internal/intersection';
@@ -27,10 +28,12 @@ export class Renderer extends InjectableGlobal {
     /**
      * Render all known layers
      */
-    public render(): void {
+    public render(hrt: number): void {
         this.gl.renderer.clear();
 
         for (const plane of this.planes) {
+            updateTimeUniforms(hrt);
+
             this.gl.renderer.render(plane.scene, GlPlane.getCamera(plane));
         }
     }

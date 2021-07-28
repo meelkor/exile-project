@@ -48,6 +48,6 @@ export class EventLoop extends InjectableGlobal {
         RootScene.runTick(this.rootScene, hrt);
 
         // And last step is actually rendering the frame
-        this.renderer.render();
+        this.renderer.render(hrt);
     }
 }
