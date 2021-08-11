@@ -1,16 +1,14 @@
 export function makeEventId(
     eventSource: EventSource,
-    eventType: number,
+    eventNamespace: number,
     eventName: number,
-    eventValue: number,
 ): number {
     return eventSource
-        & eventType << 2
-        & eventName << 8
-        & eventValue << 16;
+        | (eventNamespace << 2)
+        | (eventName << 16);
 }
 
-const enum EventSource {
+export const enum EventSource {
     Global,
     Backend,
     Player,
@@ -18,11 +16,10 @@ const enum EventSource {
 }
 
 /**
- * Bit position     |   Meaning
+ * LSB position     |   Meaning
  * ---------------------------------------
- * 0 - 1            |   EventSource
- * 2 - 7            |   EventType
- * 8 - 15           |   EventName
- * 16 - 32          |   EventValue
+ *  0 -  1          |   EventSource
+ *  2 - 15          |   EventNamespace
+ * 16 - 32          |   EventName
  */
 export type GameEventId = number;

@@ -2,7 +2,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = {
+module.exports = (env) => ({
     entry: './src/index.ts',
     module: {
         rules: [
@@ -31,6 +31,9 @@ module.exports = {
         alias: {
             '@exile/common': path.resolve(__dirname, '../common/src'),
             '@exile/client': path.resolve(__dirname, './src'),
+            ...(env.three ? {
+                'three': path.resolve(__dirname, env.three),
+            }: {}),
         },
     },
     output: {
@@ -42,4 +45,4 @@ module.exports = {
             template: './src/index.html',
         }),
     ],
-};
+});

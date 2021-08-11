@@ -9,23 +9,27 @@ export class DialogTitleCmp extends DialogFeature {
 
     public text = '';
 
+    public actions = {};
+
+    private textMesh?: Text;
+
     private uiPlane = this.inject(UiPlane);
 
     protected onInit(): void {
         assert(this.offset, 'No offset defined, was title provided as feature?');
 
-        const text = new Text();
+        this.textMesh = new Text();
 
-        text.text = this.text;
+        this.textMesh.text = this.text;
 
-        text.position.x = this.offset.x + 16;
-        text.position.y = this.uiPlane.top(this.offset.y + 16);
-        text.position.z = 1;
-        text.fontSize = 30;
-        text.font = felipa;
-        text.color = 0xE5CD7A;
+        this.textMesh.position.x = this.offset.x + 16;
+        this.textMesh.position.y = this.uiPlane.top(this.offset.y + 16);
+        this.textMesh.position.z = 1;
+        this.textMesh.fontSize = 30;
+        this.textMesh.font = felipa;
+        this.textMesh.color = 0xE5CD7A;
 
-        this.uiPlane.scene.add(text);
+        this.uiPlane.scene.add(this.textMesh);
 
         const lineMaterial = new three.LineBasicMaterial({
             color: 0x514b32,
@@ -41,7 +45,15 @@ export class DialogTitleCmp extends DialogFeature {
 
         this.uiPlane.scene.add(line);
 
-        text.sync();
+        this.textMesh.sync();
+    }
+
+    protected override onDestroy(): void {
+        super.onDestroy();
+
+        if (this.textMesh) {
+            this.uiPlane.scene.remove(this.textMesh);
+        }
     }
 
     protected onTick(): void { /** noop */ }

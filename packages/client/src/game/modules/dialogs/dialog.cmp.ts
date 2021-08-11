@@ -38,11 +38,13 @@ export class DialogCmp extends Component {
         };
     }
 
-    public addFeature(featCmp: DialogFeature): void {
-        featCmp.offset = this._offset;
+    public actions = {
+        addFeature: (featCmp: DialogFeature): void => {
+            featCmp.offset = this._offset;
 
-        this.add(featCmp);
-    }
+            this.add(featCmp);
+        },
+    };
 
     protected onInit(): void {
         assert(this.width, 'No width set');
@@ -92,6 +94,10 @@ export class DialogCmp extends Component {
 
     protected override onDestroy(): void {
         super.onDestroy();
+
+        if (this.dialogMesh) {
+            this.uiPlane.scene.remove(this.dialogMesh);
+        }
 
         this.dialogCounter.remove(this.uiPlane.getWidth(this.writtenOffset));
     }

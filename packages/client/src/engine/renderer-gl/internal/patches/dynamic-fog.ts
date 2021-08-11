@@ -60,7 +60,7 @@ float noise( in vec2 p )
 three.ShaderChunk.fog_fragment = three.ShaderChunk.fog_fragment.replace(
     'gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );',
     /* glsl */`
-        vec2 uv = fogPos.xy + time * 0.1;
+        vec2 uv = fogPos.xy + time * 0.035;
 
         mat2 m = mat2( 1.6,  1.2, -1.2,  1.6 );
         float noiseFactor = 0.5000*noise( uv ); uv = m*uv;

@@ -1,19 +1,34 @@
 import { Component } from '@exile/client/engine/component/component';
+import { Territory } from '@exile/client/game/models/territory';
 import { MapTerritoryCmp } from '@exile/client/game/modules/overworld/partials/map-territory.cmp';
+import { ensure } from '@exile/common/utils/assert';
 
 export class MapCmp extends Component {
 
-    public setTerritories(): void {
-        // todo
-    }
+    private territories: Map<number, MapTerritoryCmp> = new Map;
 
-    public updateTerritory(): void {
-        // todo
+    public actions = {
+        selectTerritory: (id: number): void => {
+            ensure(this.territories.get(id)).actions.setSelected(true);
+        },
+
+        deselectTerritory: (id: number): void => {
+            ensure(this.territories.get(id)).actions.setSelected(false);
+        },
+    };
+
+    public setTerritories(territories: Territory[]): void {
+        for (const territory of territories) {
+            const cmp = this.instantiate(MapTerritoryCmp);
+            cmp.actions.setTerritoryInfo(territory);
+            this.territories.set(territory.id, cmp);
+        }
     }
 
     protected onInit(): void {
-        const territory = this.instantiate(MapTerritoryCmp);
-        this.add(territory);
+        for (const cmp of this.territories.values()) {
+            this.add(cmp);
+        }
     }
 
     protected onTick(): void { /** noop */ }

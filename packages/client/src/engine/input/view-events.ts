@@ -20,6 +20,8 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
     private renderer = this.inject(Renderer);
     private componentRegistry = this.inject(ComponentRegistry);
 
+    private hoveredNodes: Set<number> = new Set();
+
     private emitEvents(): void {
         for (const e of this.inputObserver.getEvents()) {
             this.translateAndEmit(e);
@@ -47,12 +49,21 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
             // TODO: mouseout needs to be also called on those that are BOTH
             //  but under the one, that blocked mousemove
             for (const int of grouped.aOnly) {
+                this.hoveredNodes.delete(int.nodeId);
+
                 stopInAndMove = this.emitIfListens(int.nodeId, ViewEventType.MouseOut, null);
 
                 if (stopInAndMove) {
                     break;
                 }
             }
+
+            /**
+             * Nodes that remain in this set after all the mousemove iterations
+             * became unhovered without proper DOM event happened (probably
+             * changed location on frame.)
+             */
+            const zombieNodes = new Set(this.hoveredNodes);
 
             if (!stopInAndMove) {
                 for (const [intFrom, intTo] of grouped.both) {
@@ -61,6 +72,8 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
                         to: intTo.position,
                     });
 
+                    zombieNodes.delete(intFrom.nodeId);
+
                     if (stopInAndMove) {
                         break;
                     }
@@ -68,9 +81,17 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
             }
 
             for (const int of grouped.bOnly) {
+                this.hoveredNodes.add(int.nodeId);
+                zombieNodes.delete(int.nodeId);
+
                 if (this.emitIfListens(int.nodeId, ViewEventType.MouseIn, null)) {
                     break;
                 }
+            }
+
+            for (const zombieNode of zombieNodes) {
+                // In zombie cases the event can't stop propagation
+                this.emitIfListens(zombieNode, ViewEventType.MouseOut, null);
             }
         } else if (e.type === CursorEventType.Down || e.type === CursorEventType.Up) {
             const ints = this.renderer.project(e.pos);
@@ -158,7 +179,12 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
 
         for (const int of aInts) {
             if (bIntMap.has(int.nodeId)) {
-                out.both.push([int, bIntMap.get(int.nodeId)!]);
+                if (this.hoveredNodes.has(int.nodeId)) {
+                    out.both.push([int, bIntMap.get(int.nodeId)!]);
+                } else {
+                    out.bOnly.push(int);
+                }
+
                 bIntMap.delete(int.nodeId);
             } else {
                 out.aOnly.push(int);

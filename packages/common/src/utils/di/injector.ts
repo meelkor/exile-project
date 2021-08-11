@@ -74,8 +74,12 @@ export class Injector implements CompatibleInjector {
         currentParentInjector = this;
 
         if ('prototype' in instanceOrClass && Injectable.isConstructor(instanceOrClass)) {
+            const instance = new instanceOrClass;
+
+            InjectableBase.runAfterHookConstructed(instance);
+
             return {
-                value: new instanceOrClass,
+                value: instance,
                 name: instanceOrClass,
             };
         } else {

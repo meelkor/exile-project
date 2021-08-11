@@ -6,6 +6,8 @@ import { ViewEventType } from '@exile/client/engine/input/view-event-type';
 
 export class CameraTrapCmp extends Component {
 
+    public actions = {};
+
     private worldPlane = this.inject(WorldPlane);
 
     private moving = false;

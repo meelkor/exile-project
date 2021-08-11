@@ -3,9 +3,7 @@ import { ViewConfig } from '@exile/client/engine/config/view-config';
 import { bootstrap } from '@exile/client/engine/scene/bootstrap';
 import { NoopServer } from '@exile/client/engine/server/noop-server';
 import { Server } from '@exile/client/engine/server/server';
-import { Store } from '@exile/client/engine/store/store';
 import { MainScene } from '@exile/client/game/main.scn';
-import { TestStore } from '@exile/client/game/store/test-store';
 import { Injector } from '@exile/common/utils/di';
 
 const root = new Injector();
@@ -24,6 +22,5 @@ root.provide(new ViewConfig({
 }));
 
 root.provide(NoopServer, Server);
-root.provide(TestStore, Store);
 
 bootstrap(root, MainScene);

@@ -5,11 +5,11 @@ import { InjectableGlobal } from '@exile/common/utils/di';
 
 export abstract class Events<TEvent extends SupportedEventType, TPayloads extends PayloadMap<TEvent> = { [k in TEvent]: null }, TReturn = undefined> extends InjectableGlobal {
 
-    private listeners: Map<TEvent, Set<EventHandler<TEvent, TPayloads, TReturn>>> = new Map();
+    private listeners: Map<TEvent, Set<EventHandler<this, TEvent, TPayloads, TReturn>>> = new Map();
 
-    private listenersByNode: Map<TreeNode | null, Map<TEvent, EventHandler<TEvent, TPayloads, TReturn>[]>> = new Map();
+    private listenersByNode: Map<TreeNode | null, Map<TEvent, EventHandler<this, TEvent, TPayloads, TReturn>[]>> = new Map();
 
-    public on<T extends TEvent>(event: T, handler: (payload: TPayloads[T]) => TReturn): void {
+    public on<T extends TEvent>(event: T, handler: (payload: TPayloads[T], from: this) => TReturn): void {
         const currentNode = GlobalTreeNode.get();
 
         let set = this.listeners.get(event);
@@ -19,7 +19,7 @@ export abstract class Events<TEvent extends SupportedEventType, TPayloads extend
             this.listeners.set(event, set);
         }
 
-        set.add(handler as EventHandler<TEvent, TPayloads, TReturn>);
+        set.add(handler as EventHandler<this, TEvent, TPayloads, TReturn>);
 
         let nodeEventMap = this.listenersByNode.get(currentNode);
 
@@ -35,7 +35,7 @@ export abstract class Events<TEvent extends SupportedEventType, TPayloads extend
             nodeEventMap.set(event, evArray);
         }
 
-        evArray.push(handler as EventHandler<TEvent, TPayloads, TReturn>);
+        evArray.push(handler as EventHandler<this, TEvent, TPayloads, TReturn>);
     }
 
     public offNode(node: TreeNode): void {
@@ -59,7 +59,7 @@ export abstract class Events<TEvent extends SupportedEventType, TPayloads extend
 
         if (handlers) {
             for (const handler of handlers) {
-                handler(payload);
+                handler(payload, this);
             }
         }
     }
@@ -73,12 +73,12 @@ export abstract class Events<TEvent extends SupportedEventType, TPayloads extend
 
         assert(handlers?.length, 'Cannot emit event for node without handlers');
 
-        return handlers.map(h => h(payload));
+        return handlers.map(h => h(payload, this));
     }
 }
 
 export type PayloadMap<TEvent extends SupportedEventType> = Record<TEvent, unknown>;
 
-export type EventHandler<TEvent extends SupportedEventType, TPayloads extends PayloadMap<TEvent>, TReturn> = (p: TPayloads[TEvent]) => TReturn;
+export type EventHandler<TFrom, TEvent extends SupportedEventType, TPayloads extends PayloadMap<TEvent>, TReturn> = (p: TPayloads[TEvent], from: TFrom) => TReturn;
 
 export type SupportedEventType = string | number | symbol;

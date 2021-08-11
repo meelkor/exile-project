@@ -2,6 +2,7 @@ import { GlobalTreeNode } from '@exile/client/engine/core/global-tree-node';
 import { assert } from '@exile/common/utils/assert';
 import { Injectable } from '@exile/common/utils/di';
 import { Counter } from '@exile/common/utils/counter';
+import { HookAfterConstructed } from '@exile/common/utils/di/hooks';
 
 /**
  * Class representing a node in the game view tree which includes components,
@@ -10,6 +11,8 @@ import { Counter } from '@exile/common/utils/counter';
  * are removed as well.
  */
 export abstract class TreeNode<TChild extends TreeNode<any> = TreeNode<any>> extends Injectable {
+
+    public abstract actions: Record<string, (...args: any[]) => any>;
 
     /**
      * Human readable name used for debugging
@@ -65,6 +68,25 @@ export abstract class TreeNode<TChild extends TreeNode<any> = TreeNode<any>> ext
         this.children.delete(child);
 
         GlobalTreeNode.clear(child);
+    }
+
+    protected override [HookAfterConstructed](): void {
+        for (const [key, fn] of Object.entries(this.actions)) {
+            this.actions[key] = this.action(fn);
+        }
+    }
+
+    /**
+     * Mark given function as an action and make it a part of the node's
+     * lifecycle.
+     */
+    private action<T extends (...args: any[]) => any>(fn: T): T {
+        return ((...args: Parameters<T>): ReturnType<T> => {
+            GlobalTreeNode.set(this);
+            const rv = fn(...args);
+            GlobalTreeNode.clear(this);
+            return rv;
+        }) as any as T;
     }
 
     private tick(hrt: number): void {
