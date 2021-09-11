@@ -17,6 +17,7 @@
     "checkJs": false,
     "forceConsistentCasingInFileNames": true,
     "noEmitOnError": false,
+    "experimentalDecorators": true,
     "paths": {
         "@@/*": ["packages/*/src/"],
     },

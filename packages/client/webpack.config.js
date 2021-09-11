@@ -34,6 +34,9 @@ module.exports = (env) => ({
             ...(env.three ? {
                 'three': path.resolve(__dirname, env.three),
             }: {}),
+            ...(env['troika-text'] ? {
+                'troika-three-text': path.resolve(__dirname, env['troika-text']),
+            }: {}),
         },
     },
     output: {

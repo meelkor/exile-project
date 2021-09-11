@@ -26,6 +26,7 @@ export abstract class GlPlane extends InjectableGlobal {
 
         this.raycaster.setFromCamera(normalizedPos, this.camera);
         const intersections = this.raycaster.intersectObjects(this.scene.children);
+        console.log(intersections.map(int => int.object.userData))
 
         return intersections
             .filter(int => int.object.userData.interactive)

@@ -16,6 +16,8 @@ export abstract class Injectable extends InjectableBase {
     constructor(parentOnly: boolean = false) {
         super();
 
+        InjectableBase.runBeforeHookConstructed(this);
+
         if (parentOnly) {
             const currentParent = Injector.getCurrentParent();
             assert(currentParent);

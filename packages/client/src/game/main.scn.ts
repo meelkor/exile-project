@@ -2,6 +2,7 @@ import { RootScene } from '@exile/client/engine/scene/root-scene';
 import { Store } from '@exile/client/engine/store/store';
 import { ClaimState } from '@exile/client/game/models/territory';
 import { territoryListToDict } from '@exile/client/game/models/territoryUtils';
+import { AdvScene } from '@exile/client/game/modules/adv/adv.scn';
 import { HomeUiScene } from '@exile/client/game/modules/home-ui/home-ui.scn';
 import { OverworldScene } from '@exile/client/game/modules/overworld/overworld.scn';
 import { GlobalStateModule } from '@exile/client/game/store/global-state-module';
@@ -119,5 +120,6 @@ export class MainScene extends RootScene {
 
         this.add(overworld);
         this.add(homeUiScene);
+        this.add(this.instantiate(AdvScene));
     }
 }

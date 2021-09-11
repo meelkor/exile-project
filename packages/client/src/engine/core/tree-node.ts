@@ -2,7 +2,7 @@ import { GlobalTreeNode } from '@exile/client/engine/core/global-tree-node';
 import { assert } from '@exile/common/utils/assert';
 import { Injectable } from '@exile/common/utils/di';
 import { Counter } from '@exile/common/utils/counter';
-import { HookAfterConstructed } from '@exile/common/utils/di/hooks';
+import { HookAfterConstructed, HookBeforeConstructed } from '@exile/common/utils/di/hooks';
 
 /**
  * Class representing a node in the game view tree which includes components,
@@ -40,7 +40,7 @@ export abstract class TreeNode<TChild extends TreeNode<any> = TreeNode<any>> ext
 
     protected abstract onAdd(): void;
 
-    protected abstract onTick(): void;
+    protected abstract onTick(hrt: number): void;
 
     private readonly instanceId: number = Counter.make();
 
@@ -70,7 +70,13 @@ export abstract class TreeNode<TChild extends TreeNode<any> = TreeNode<any>> ext
         GlobalTreeNode.clear(child);
     }
 
+    protected override [HookBeforeConstructed](): void {
+        GlobalTreeNode.set(this);
+    }
+
     protected override [HookAfterConstructed](): void {
+        GlobalTreeNode.clear(this);
+
         for (const [key, fn] of Object.entries(this.actions)) {
             this.actions[key] = this.action(fn);
         }
@@ -90,7 +96,7 @@ export abstract class TreeNode<TChild extends TreeNode<any> = TreeNode<any>> ext
     }
 
     private tick(hrt: number): void {
-        this.onTick();
+        this.onTick(hrt);
 
         for (const child of this.children) {
             TreeNode.runTick(child, hrt);

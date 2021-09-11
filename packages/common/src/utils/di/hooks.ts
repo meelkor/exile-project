@@ -6,3 +6,10 @@
  * constructor.
  */
 export const HookAfterConstructed = Symbol('HookAfterConstructed');
+
+/**
+ * Function called by the injector right before the injectable class is
+ * instanced.
+ * @see HookAfterConstructed
+ */
+export const HookBeforeConstructed = Symbol('HookBeforeConstructed');

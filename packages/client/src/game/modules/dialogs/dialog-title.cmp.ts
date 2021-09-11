@@ -1,9 +1,9 @@
-import { Text } from 'troika-three-text';
 import { UiPlane } from '@exile/client/engine/renderer-gl/planes/ui-plane';
 import { DialogFeature } from '@exile/client/game/modules/dialogs/dialog-feature';
 import { assert } from '@exile/common/utils/assert';
 import * as three from 'three';
 import felipa from '@exile/client/resources/fonts/felipa-regular.ttf';
+import { NodeText } from '@exile/client/engine/renderer-gl/text';
 
 export class DialogTitleCmp extends DialogFeature {
 
@@ -11,14 +11,14 @@ export class DialogTitleCmp extends DialogFeature {
 
     public actions = {};
 
-    private textMesh?: Text;
+    private textMesh?: NodeText;
 
     private uiPlane = this.inject(UiPlane);
 
     protected onInit(): void {
         assert(this.offset, 'No offset defined, was title provided as feature?');
 
-        this.textMesh = new Text();
+        this.textMesh = new NodeText();
 
         this.textMesh.text = this.text;
 

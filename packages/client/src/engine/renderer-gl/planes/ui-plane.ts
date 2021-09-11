@@ -32,6 +32,10 @@ export class UiPlane extends GlPlane {
         return this.gl.extent.height - val;
     }
 
+    public bottom(val: number): number {
+        return val;
+    }
+
     private getSize(size: UiSize, max: number): number {
         if (typeof size === 'number') {
             return size;
