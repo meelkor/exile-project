@@ -28,7 +28,7 @@ export class AdvUiCmp extends Component {
 
         const material = new three.MeshBasicMaterial({
             map: texture,
-            opacity: 0.9,
+            opacity: 0.96,
             transparent: true,
         });
 

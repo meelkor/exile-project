@@ -4,13 +4,11 @@ import { UiPlane } from '@exile/client/engine/renderer-gl/planes/ui-plane';
 import ptserif from '@exile/client/resources/fonts/ptserif-regular.ttf';
 import { assert } from '@exile/common/utils/assert';
 import { ViewEventType } from '@exile/client/engine/input/view-event-type';
-// import { NodeText } from '@exile/client/engine/renderer-gl/text';
-import { Text } from 'troika-three-text';
-import { TreeNode } from '@exile/client/engine/core/tree-node';
+import { NodeText } from '@exile/client/engine/renderer-gl/text';
 
 export class AdvTextCmp extends Component {
 
-    private textMesh: Text;
+    private textMesh: NodeText;
 
     private uiPlane = this.inject(UiPlane);
 
@@ -33,10 +31,7 @@ export class AdvTextCmp extends Component {
 
         const width = this.uiPlane.getWidth('100%') - 2 * this.uiPlane.getWidth(this.margin);
 
-        this.textMesh = new Text();
-
-        this.textMesh.userData.interactive = true;
-        this.textMesh.userData.nodeId = TreeNode.getId(this);
+        this.textMesh = new NodeText({ interactive: true });
 
         this.textMesh.position.x = this.margin;
         this.textMesh.position.y = this.uiPlane.bottom(this.margin);
@@ -53,7 +48,6 @@ export class AdvTextCmp extends Component {
         this.updateText('Some very long and important text, Some very long and important text, Some very long and important text, Some very long and important text, Some very long and important text, Some very long and important text, Some very long and important text, Some very long and important text, Some very long and important text, Some very long and important text,');
 
         this.viewEvents.on(ViewEventType.Click, () => {
-            console.log("lol")
             this.updateText('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
         });
 
@@ -78,7 +72,7 @@ export class AdvTextCmp extends Component {
                 } else {
                     const length = ((hrt - this.drawStart) / 1000) * this.charsPerSecond;
 
-                    // this.textMesh.setTextLength(length);
+                    this.textMesh.setTextLength(length);
 
                     if (length >= this.drawLength) {
                         this.drawing = false;
@@ -98,7 +92,7 @@ export class AdvTextCmp extends Component {
         this.drawStart = 0;
         this.drawing = false;
 
-        // this.textMesh.setTextLength(0);
+        this.textMesh.setTextLength(0);
 
         if (textUnchanged) {
             this.drawing = true;

@@ -17,7 +17,7 @@ export class UiPlane extends GlPlane {
 
         this.camera = new three.OrthographicCamera(0, this.gl.extent.width, this.gl.extent.height, 0, -10, 10);
 
-        this.camera.position.set(0, 0, 1);
+        this.camera.position.set(0, 0, 10);
     }
 
     public getHeight(size: UiSize): number {

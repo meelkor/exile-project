@@ -112,8 +112,7 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
                 }
             }
         } else if (e.type === CursorEventType.Click) {
-            console.log("GOT CLICK?")
-            const groups = this.groupIntersections(e.from, e.to, true);
+            const groups = this.groupIntersections(e.from, e.to);
 
             for (const [, int] of groups.both) {
                 const payload = {
@@ -166,15 +165,11 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
      * translated to Mouse In / Out or whether user didn't move between two
      * components during the click.
      */
-    private groupIntersections(a: Pos, b: Pos, debug?: boolean): GroupedIntersections {
+    private groupIntersections(a: Pos, b: Pos): GroupedIntersections {
         const aInts = this.renderer.project(a);
         const bInts = this.renderer.project(b);
 
         const bIntMap = new Map(bInts.map(int => [int.nodeId, int]));
-
-        if (debug) {
-            console.log("lol", aInts);
-        }
 
         const out: GroupedIntersections = {
             aOnly: [],

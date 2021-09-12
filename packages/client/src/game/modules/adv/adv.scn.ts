@@ -8,6 +8,6 @@ export class AdvScene extends RootScene {
 
     protected onAdd(): void {
         this.add(this.instantiate(AdvTextCmp));
-        false && this.add(this.instantiate(AdvUiCmp));
+        this.add(this.instantiate(AdvUiCmp));
     }
 }
