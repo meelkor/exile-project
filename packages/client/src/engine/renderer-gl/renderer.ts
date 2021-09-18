@@ -44,4 +44,18 @@ export class Renderer extends InjectableGlobal {
     public project(pos: Pos): NodeIntersection[] {
         return this.planes.map(plane => plane.project(pos)).reverse().flat();
     }
+
+    /**
+     * Remove all children from every scene that were created by node of given
+     * ID.
+     */
+    public deleteNodesChildren(id: number): void {
+        for (const plane of this.planes) {
+            const ownedChildren = plane.scene.children.filter(child => child.userData.nodeId === id);
+
+            for (const child of ownedChildren) {
+                plane.scene.remove(child);
+            }
+        }
+    }
 }

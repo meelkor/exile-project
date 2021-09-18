@@ -55,12 +55,9 @@ export class NodeText extends Text {
                 gl_FragColor.a *= edgeAlpha;
             `);
         };
-
-        console.log("I??", this.userData.interactive)
     }
 
     public setTextLength(len: number): void {
         setUniform(this, 'uExileLength', len);
     }
 }
-
