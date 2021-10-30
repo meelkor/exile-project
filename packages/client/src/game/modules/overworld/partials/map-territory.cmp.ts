@@ -41,8 +41,7 @@ export class MapTerritoryCmp extends Component {
 
     public actions = {
         setTerritoryInfo: (territory: Territory): void => {
-            const vec = new three.Vector3(territory.x, 0, 0)
-                .add(this.style.yVector.clone().multiplyScalar(territory.y));
+            const vec = this.style.getTerritoryVector(territory);
 
             const unknown = territory.claim === ClaimState.Unknown;
 
@@ -71,7 +70,8 @@ export class MapTerritoryCmp extends Component {
 
             this.updateStyle();
 
-            this.active = territory.claim !== ClaimState.Unknown;
+            this.active = territory.claim !== ClaimState.Unknown
+                && territory.claim !== ClaimState.Blocked;
             this.territoryId = territory.id;
         },
 

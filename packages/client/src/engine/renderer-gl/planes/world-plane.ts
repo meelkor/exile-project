@@ -19,13 +19,13 @@ export class WorldPlane extends GlPlane {
         const aspect = this.gl.extent.width / this.gl.extent.height;
 
         this.scene = new three.Scene();
-        this.scene.fog = new three.Fog(0xddddff, 0, 8);
+        // this.scene.fog = new three.Fog(0xddddff, 0, 8);
 
-        this.camera = new three.PerspectiveCamera(38, aspect);
+        this.camera = new three.PerspectiveCamera(41, aspect);
 
         this.camera.position.set(0, 0, DEFAULT_Z);
         this.camera.lookAt(0, 0, 0);
-        this.camera.rotateX(Math.PI * 0.18);
+        this.camera.rotateX(Math.PI * 0.14);
     }
 
     public pan(from: Pos, to: Pos): void {

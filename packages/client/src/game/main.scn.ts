@@ -1,8 +1,7 @@
 import { RootScene } from '@exile/client/engine/scene/root-scene';
 import { Store } from '@exile/client/engine/store/store';
-import { ClaimState } from '@exile/client/game/models/territory';
+import { strMapToTerritories } from "@exile/client/game/fun/territoryMap";
 import { territoryListToDict } from '@exile/client/game/models/territoryUtils';
-import { AdvScene } from '@exile/client/game/modules/adv/adv.scn';
 import { HomeUiScene } from '@exile/client/game/modules/home-ui/home-ui.scn';
 import { OverworldScene } from '@exile/client/game/modules/overworld/overworld.scn';
 import { GlobalStateModule } from '@exile/client/game/store/global-state-module';
@@ -18,108 +17,29 @@ export class MainScene extends RootScene {
         // This should be handled by some preloading service, which will
         // intiate store modules the scene we want to open depends on
         store.register(GlobalStateModule, new GlobalStateModule({
-            territories: territoryListToDict([
-                {
-                    claim: ClaimState.Unknown,
-                    slots: [],
-                    x: 0,
-                    y: 0,
-                },
-                {
-                    claim: ClaimState.Unknown,
-                    slots: [],
-                    x: 0,
-                    y: 1,
-                },
-                {
-                    claim: ClaimState.Unknown,
-                    slots: [],
-                    x: 0,
-                    y: 2,
-                },
-                {
-                    claim: ClaimState.Unknown,
-                    slots: [],
-                    x: 0,
-                    y: 3,
-                },
-                {
-                    claim: ClaimState.Unknown,
-                    slots: [],
-                    x: 1,
-                    y: 0,
-                },
-                {
-                    claim: ClaimState.Free,
-                    slots: [],
-                    x: 1,
-                    y: 1,
-                },
-                {
-                    claim: ClaimState.Free,
-                    slots: [],
-                    x: 1,
-                    y: 2,
-                },
-                {
-                    claim: ClaimState.Unknown,
-                    slots: [],
-                    x: 1,
-                    y: 3,
-                },
-                {
-                    claim: ClaimState.Unknown,
-                    slots: [],
-                    x: 2,
-                    y: 0,
-                },
-                {
-                    claim: ClaimState.Free,
-                    slots: [],
-                    x: 2,
-                    y: 1,
-                },
-                {
-                    claim: ClaimState.Free,
-                    slots: [],
-                    x: 2,
-                    y: 2,
-                },
-                {
-                    claim: ClaimState.Unknown,
-                    slots: [],
-                    x: 2,
-                    y: 3,
-                },
-                {
-                    claim: ClaimState.Unknown,
-                    slots: [],
-                    x: 3,
-                    y: 0,
-                },
-                {
-                    claim: ClaimState.Unknown,
-                    slots: [],
-                    x: 3,
-                    y: 1,
-                },
-                {
-                    claim: ClaimState.Unknown,
-                    slots: [],
-                    x: 3,
-                    y: 2,
-                },
-                {
-                    claim: ClaimState.Unknown,
-                    slots: [],
-                    x: 3,
-                    y: 3,
-                },
-            ]),
+            territories: territoryListToDict(strMapToTerritories([
+                [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+                [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+                [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+                [" ", " ", " ", "b", "b", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+                [" ", " ", " ", "b", "b", "g", "g", "g", "g", "g", "g", " ", " ", " ", " ", " "],
+                [" ", " ", " ", "b", "b", "f", "f", "f", "f", "s", "g", " ", " ", " ", " ", " "],
+                [" ", " ", " ", "b", "b", "f", "f", "f", "f", "s", "s", "g", " ", " ", " ", " "],
+                [" ", " ", " ", "b", "b", "b", "f", "f", "f", "f", "s", "g", " ", " ", " ", " "],
+                [" ", " ", " ", "b", "b", "b", "f", "f", "f", "f", "g", " ", " ", " ", " ", " "],
+                [" ", " ", " ", "b", "g", "g", "f", "s", "s", "g", "g", " ", " ", " ", " ", " "],
+                [" ", " ", " ", "b", "b", "b", "g", "g", "g", "g", " ", " ", " ", " ", " ", " "],
+                [" ", " ", " ", " ", "b", "b", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+                [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+                [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+                [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+                [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+                [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+                [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+            ])),
         }));
 
         this.add(overworld);
         this.add(homeUiScene);
-        this.add(this.instantiate(AdvScene));
     }
 }

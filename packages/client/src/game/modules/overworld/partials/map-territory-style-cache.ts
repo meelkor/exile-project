@@ -4,6 +4,7 @@ import paperUrl from '@exile/client/resources/textures/map/paper.png';
 import { enableFogIntensity } from '@exile/client/engine/renderer-gl/extensions/fog-intensity';
 import { InjectableGlobal } from '@exile/common/utils/di';
 import { GlobalLoader } from '@exile/client/engine/renderer-gl/global-loader';
+import { Pos } from "@exile/common/types/geometry";
 
 /**
  * Should not be changed as some calculations are simplified by the distance
@@ -24,11 +25,25 @@ export class MapTerritoryStyle extends InjectableGlobal {
     public readonly visibleMaterial = this.makeMaterial(0xFFFFFF);
     public readonly unknownMaterial = this.makeMaterial(0x999999);
 
-    public readonly yVector = new three.Vector3(
-        TILE_DISTANCE / 2,
-        Math.sqrt(1 - TILE_DISTANCE / 2 ** 2),
+    /**
+     * Vector to be used to calculate territory position for even Y values
+     */
+    public readonly vectorOdd = new three.Vector3(
+        1,
+        Math.sqrt(1 - 1 / 2 ** 2),
         0,
     );
+
+    public getTerritoryVector(pos: Pos): three.Vector3 {
+        const vec = new three.Vector3(pos.x, pos.y, 0)
+            .multiply(this.vectorOdd);
+
+        if (pos.y % 2 === 1) {
+            vec.add(new three.Vector3(1 / 2, 0, 0));
+        }
+
+        return vec;
+    }
 
     private makeMaterial(color: three.ColorRepresentation): three.Material {
         const texture = this.loader.load(paperUrl);

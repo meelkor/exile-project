@@ -17,4 +17,5 @@ export enum ClaimState {
     Scoutable,
     Guarded,
     Free,
+    Blocked,
 }
