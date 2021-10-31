@@ -12,7 +12,7 @@ export function parseTerritoryId(id: number): Pos {
     };
 }
 
-export function territoryListToDict(territory: PartialBy<Territory, 'id'>[]): Record<number, Territory> {
+export function territoryListToDict(territory: TerritoryInput[]): Record<number, Territory> {
     return Object.fromEntries(
         territory.map(t => {
             const id = 'id' in t ? t.id : territoryId(t.x, t.y);
@@ -20,5 +20,7 @@ export function territoryListToDict(territory: PartialBy<Territory, 'id'>[]): Re
         }),
     );
 }
+
+export type TerritoryInput = PartialBy<Territory, 'id'>;
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>

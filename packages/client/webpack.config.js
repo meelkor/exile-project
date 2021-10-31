@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = (env) => ({
     entry: './src/index.ts',
@@ -46,6 +47,14 @@ module.exports = (env) => ({
     plugins: [
         new HtmlWebpackPlugin({
             template: './src/index.html',
+        }),
+        new CopyPlugin({
+            patterns: [
+                {
+                    from: './src/assets',
+                    to: './assets',
+                },
+            ],
         }),
     ],
 });

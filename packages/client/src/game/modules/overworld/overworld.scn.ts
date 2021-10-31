@@ -3,7 +3,7 @@ import { RootScene } from '@exile/client/engine/scene/root-scene';
 import { OverworldEvents } from '@exile/client/game/modules/overworld/overworld-events';
 import { CameraTrapCmp } from '@exile/client/game/modules/overworld/partials/camera-trap.cmp';
 import { MapCmp } from '@exile/client/game/modules/overworld/partials/map.cmp';
-import { GlobalStateModule, GlobalModuleChange } from '@exile/client/game/store/global-state-module';
+import { GlobalStateModule, GlobalModuleChange } from '@exile/client/game/main/global-state-module';
 import { asNumberOrUndefined } from '@exile/common/utils/assert';
 
 export class OverworldScene extends RootScene {

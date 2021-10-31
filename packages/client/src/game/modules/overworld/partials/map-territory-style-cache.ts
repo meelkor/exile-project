@@ -4,7 +4,7 @@ import paperUrl from '@exile/client/resources/textures/map/paper.png';
 import { enableFogIntensity } from '@exile/client/engine/renderer-gl/extensions/fog-intensity';
 import { InjectableGlobal } from '@exile/common/utils/di';
 import { GlobalLoader } from '@exile/client/engine/renderer-gl/global-loader';
-import { Pos } from "@exile/common/types/geometry";
+import { Pos } from '@exile/common/types/geometry';
 
 /**
  * Should not be changed as some calculations are simplified by the distance

@@ -9,11 +9,13 @@
     "serve": "superstatic dist --port 5000"
   },
   "dependencies": {
+    "rxjs": "^7.4.0",
     "three": "^0.130.1",
     "troika-three-text": "^0.42.0"
   },
   "devDependencies": {
     "@types/three": "^0.130.1",
+    "copy-webpack-plugin": "^9.0.1",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.3.2",
     "superstatic": "^7.1.0",

@@ -2,7 +2,7 @@ import { RootScene } from '@exile/client/engine/scene/root-scene';
 import { RefChange } from '@exile/client/engine/store/state-module';
 import { DialogCmp } from '@exile/client/game/modules/dialogs/dialog.cmp';
 import { DialogService } from '@exile/client/game/modules/dialogs/dialog.svc';
-import { GlobalStateModule, GlobalModuleChange } from '@exile/client/game/store/global-state-module';
+import { GlobalStateModule, GlobalModuleChange } from '@exile/client/game/main/global-state-module';
 
 export class HomeUiScene extends RootScene {
 
