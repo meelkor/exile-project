@@ -1,0 +1,21 @@
+{
+  "name": "@exile/devtools",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "jimp": "^0.16.1",
+    "minimist": "^1.2.5",
+    "mkdirp": "^1.0.4",
+    "module-alias": "^2.2.2"
+  },
+  "devDependencies": {
+    "@types/minimist": "^1.2.2",
+    "@types/mkdirp": "^1.0.2",
+    "@types/module-alias": "^2.0.1",
+    "@types/node": "^16.11.6"
+  }
+}
