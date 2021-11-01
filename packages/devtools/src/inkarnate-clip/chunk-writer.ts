@@ -70,10 +70,9 @@ export class ChunkWriter {
             chunkImage.blit(
                 this.fullMap,
                 0,
-                // fixme we are putting last on top as well
                 Math.max(0, height - availableHeight),
                 chunk.fromPixel.x,
-                this.fullMapHeight - chunk.toPixel.y,
+                Math.max(this.fullMapHeight - chunk.toPixel.y, 0),
                 Math.min(width, availableWidth),
                 Math.min(height, availableHeight),
             );

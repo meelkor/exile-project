@@ -17,7 +17,7 @@ import { ChunkWriter } from './chunk-writer';
 /**
  * Both max width and height of one output texture
  */
-const MAX_CHUNK_SIZE = 2048;
+const MAX_CHUNK_SIZE = 1024;
 
 cli(HELP, async (argv) => {
     const inputFilePath = argv('i', 'No input file provided', 'string');
@@ -56,7 +56,6 @@ cli(HELP, async (argv) => {
             break;
         }
 
-        // fixme: we are not including the "buffer" part of the previous chunk
         const copyRangeY = [pointerY, pointerY + chunkHeight] as const;
         const tileRangeY = [tilePointerY, tilePointerY + tilesPerChunkY] as const;
 
@@ -108,10 +107,10 @@ function getHeightLimits(tileWidth: number): HeightLimits {
     const a = w / Math.cos(rad);
     const b = w * Math.tan(rad);
 
-    const tilesPerChunkY = Math.floor((MAX_CHUNK_SIZE - 2 * b) / (a + b)) + 1;
-    const minChunkHeight = Math.ceil(2 * a);
-    const chunkHeight = Math.ceil((tilesPerChunkY - 1) * (a + b) + 2 * b);
     const bufferY = a - b;
+    const tilesPerChunkY = Math.floor((MAX_CHUNK_SIZE - bufferY) / (a + b));
+    const minChunkHeight = Math.ceil(2 * a);
+    const chunkHeight = Math.ceil((tilesPerChunkY) * (a + b) + bufferY);
 
     return {
         tilesPerChunkY,
