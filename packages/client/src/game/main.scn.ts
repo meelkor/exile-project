@@ -8,8 +8,6 @@ import { MainInit } from '@exile/client/game/main/main-init';
 export class MainScene extends RootScene {
 
     protected onAdd(): void {
-        const overworld = this.instantiate(OverworldScene);
-        const homeUiScene = this.instantiate(HomeUiScene);
 
         const store = this.inject(Store);
         const mainInit = this.inject(MainInit);
@@ -18,6 +16,9 @@ export class MainScene extends RootScene {
         // intiate store modules the scene we want to open depends on
         mainInit.initGlobalState().subscribe(state => {
             store.register(GlobalStateModule, new GlobalStateModule(state));
+
+            const overworld = this.instantiate(OverworldScene);
+            const homeUiScene = this.instantiate(HomeUiScene);
 
             this.add(overworld);
             this.add(homeUiScene);

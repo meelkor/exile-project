@@ -21,11 +21,11 @@ export class WorldPlane extends GlPlane {
         this.scene = new three.Scene();
         // this.scene.fog = new three.Fog(0xddddff, 0, 8);
 
-        this.camera = new three.PerspectiveCamera(41, aspect);
+        this.camera = new three.PerspectiveCamera(45, aspect);
 
         this.camera.position.set(0, 0, DEFAULT_Z);
         this.camera.lookAt(0, 0, 0);
-        this.camera.rotateX(Math.PI * 0.14);
+        this.camera.rotateX(Math.PI * 0.07);
     }
 
     public pan(from: Pos, to: Pos): void {

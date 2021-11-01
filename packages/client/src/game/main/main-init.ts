@@ -10,6 +10,10 @@ import { map, Observable } from 'rxjs';
  */
 export class MainInit extends InjectableGlobal {
 
+    constructor() {
+        super(true);
+    }
+
     /**
      * Load all necessary data to create global state store module
      */

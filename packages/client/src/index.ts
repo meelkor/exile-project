@@ -10,8 +10,8 @@ const root = new Injector();
 
 const canvas = document.createElement('canvas');
 
-canvas.width = 1280;
-canvas.height = 720;
+canvas.width = 1920;
+canvas.height = 1080;
 
 document.body.appendChild(canvas);
 

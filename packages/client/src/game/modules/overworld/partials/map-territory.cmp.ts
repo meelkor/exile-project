@@ -3,7 +3,6 @@ import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
 import * as three from 'three';
 import { WorldPlane } from '@exile/client/engine/renderer-gl/planes/world-plane';
 import { enableTimeUniform } from '@exile/client/engine/renderer-gl/extensions/time';
-import { setFogIntensity } from '@exile/client/engine/renderer-gl/extensions/fog-intensity';
 import { ClaimState, Territory } from '@exile/client/game/models/territory';
 import { MapTerritoryStyle } from '@exile/client/game/modules/overworld/partials/map-territory-style-cache';
 import { Cursor, CursorType } from '@exile/client/engine/view/cursor';
@@ -42,16 +41,7 @@ export class MapTerritoryCmp extends Component {
     public actions = {
         setTerritoryInfo: (territory: Territory): void => {
             const vec = this.style.getTerritoryVector(territory);
-
-            const unknown = territory.claim === ClaimState.Unknown;
-
-            const material = unknown ? this.style.unknownMaterial : this.style.visibleMaterial;
-
-            const mesh = new NodeMesh(this.style.planeGeometry, material, true);
-
-            setFogIntensity(mesh, territory.claim === ClaimState.Unknown ? 0.6 : 0.07);
-
-            mesh.position.copy(vec);
+            const mesh = this.style.getTerritoryMesh(territory);
 
             // TODO: optimize - either create specific material which uses mesh
             // uniforms to set style or use single mesh and just hide / show it and
@@ -122,20 +112,16 @@ export class MapTerritoryCmp extends Component {
 
             if (this.selected) {
                 line.material.color.set(0x333333);
-                line.material.opacity = 0.3;
-                line.material.linewidth = 4;
+                line.material.opacity = 0.8;
                 line.position.setZ(0.01);
             } else if (this.hovered) {
                 line.material.color.set(0x0000FF);
-                line.material.opacity = 0.3;
-                line.material.linewidth = 4;
+                line.material.opacity = 0.4;
                 line.position.setZ(0.01);
             } else {
                 line.material.color.set(0x888888);
-                line.material.opacity = 0.1;
-                line.material.linewidth = 2;
+                line.material.opacity = 0.3;
                 line.position.setZ(0.0);
-
             }
         }
     }
