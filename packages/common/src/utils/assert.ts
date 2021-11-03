@@ -22,8 +22,8 @@ export const assert: AssertFn = Object.assign(assertMain, {
     enumUnique: assertEnumUnique,
 });
 
-export function ensure<T>(v: T | undefined | null): T {
-    assert(v, 'Ensure failed');
+export function ensure<T>(v: T | undefined | null, err?: string): T {
+    assert(v, err ? err : 'Ensure failed');
     return v;
 }
 
