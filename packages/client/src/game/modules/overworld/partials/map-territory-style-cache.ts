@@ -38,6 +38,8 @@ export class MapTerritoryStyle extends InjectableGlobal {
 
     private chunkMaterialCache: Map<three.Texture, three.Material> = new Map();
 
+    private borderTexture = this.createBorderTexture();
+
     public getTerritoryMesh(territory: Territory): NodeMesh {
         const unknown = territory.claim === ClaimState.Unknown;
 
@@ -85,11 +87,30 @@ export class MapTerritoryStyle extends InjectableGlobal {
                     uniform float rangeX1;
                     uniform float rangeY0;
                     uniform float rangeY1;
+                    varying vec2 origUv;
                     ${shader.vertexShader}
                 `;
                 shader.vertexShader = shader.vertexShader.replace(`#include <uv_vertex>`, /* glsl */`
+                    origUv = uv;
                     vUv = uv * vec2(rangeX1 - rangeX0, rangeY1 - rangeY0) + vec2(rangeX0, rangeY0);
                 `);
+
+                shader.fragmentShader = `
+                    varying vec2 origUv;
+                    uniform sampler2D border;
+                    ${shader.fragmentShader}
+                `;
+                shader.fragmentShader = shader.fragmentShader.replace(`#include <map_fragment>`, /* glsl */`
+                    vec4 texelColor = texture2D(map, vUv);
+                    vec4 borderColor = texture2D(border, origUv);
+
+                    texelColor = mapTexelToLinear( texelColor * borderColor );
+                    diffuseColor *= texelColor;
+                `);
+
+                shader.uniforms.border = {
+                    value: this.borderTexture,
+                };
             });
 
             enableTimeUniform(material);
@@ -143,5 +164,38 @@ export class MapTerritoryStyle extends InjectableGlobal {
         geometry.scale(1, this.mapAtlas.yScale, 1);
 
         return geometry;
+    }
+
+    private createBorderTexture(): three.Texture {
+        const position = this.lineGeometry.getAttribute('position')!;
+
+        const borderCanvas = document.createElement('canvas');
+        const BORDER_TEXTURE_SIZE = 256;
+
+        borderCanvas.width = BORDER_TEXTURE_SIZE;
+        borderCanvas.height = BORDER_TEXTURE_SIZE;
+
+        const ctx = ensure(borderCanvas.getContext('2d'));
+
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, BORDER_TEXTURE_SIZE, BORDER_TEXTURE_SIZE);
+
+        for (let i = 0; i < position.count; i++) {
+            const x = (0.5 + position.getX(i) * 1.001) * BORDER_TEXTURE_SIZE;
+            const y = (0.5 + position.getY(i) * 1.018) * BORDER_TEXTURE_SIZE;
+
+            if (i === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#999999';
+
+        ctx.stroke();
+
+        return new three.CanvasTexture(borderCanvas);
     }
 }

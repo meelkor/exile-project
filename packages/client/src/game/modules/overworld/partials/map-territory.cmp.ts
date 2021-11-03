@@ -1,13 +1,11 @@
 import { Component } from '@exile/client/engine/component/component';
 import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
-import * as three from 'three';
 import { WorldPlane } from '@exile/client/engine/renderer-gl/planes/world-plane';
-import { enableTimeUniform } from '@exile/client/engine/renderer-gl/extensions/time';
 import { ClaimState, Territory } from '@exile/client/game/models/territory';
 import { MapTerritoryStyle } from '@exile/client/game/modules/overworld/partials/map-territory-style-cache';
 import { Cursor, CursorType } from '@exile/client/engine/view/cursor';
 import { ViewEventType } from '@exile/client/engine/input/view-event-type';
-import { assert } from '@exile/common/utils/assert';
+import { assert, ensure } from '@exile/common/utils/assert';
 import { OverworldEvents } from '@exile/client/game/modules/overworld/overworld-events';
 
 /**
@@ -22,10 +20,7 @@ export class MapTerritoryCmp extends Component {
 
     private cursor = this.inject(Cursor);
 
-    private objects: MapTerritoryObjects = {
-        line: undefined,
-        mesh: undefined,
-    };
+    private mesh?: NodeMesh;
 
     private territoryId?: number;
 
@@ -40,23 +35,7 @@ export class MapTerritoryCmp extends Component {
 
     public actions = {
         setTerritoryInfo: (territory: Territory): void => {
-            const vec = this.style.getTerritoryVector(territory);
-            const mesh = this.style.getTerritoryMesh(territory);
-
-            // TODO: optimize - either create specific material which uses mesh
-            // uniforms to set style or use single mesh and just hide / show it and
-            // change its position.
-            const lineMaterial = new three.LineBasicMaterial({
-                transparent: true,
-            });
-            enableTimeUniform(lineMaterial);
-
-            const line = new three.Line(this.style.lineGeometry, lineMaterial);
-
-            line.position.copy(vec);
-
-            this.objects.mesh = mesh;
-            this.objects.line = line;
+            this.mesh = this.style.getTerritoryMesh(territory);
 
             this.updateStyle();
 
@@ -72,10 +51,7 @@ export class MapTerritoryCmp extends Component {
     }
 
     protected onInit(): void {
-        for (const object of Object.values(this.objects)) {
-            assert(object, 'Object does not exist on map territory');
-            this.worldPlane.scene.add(object);
-        }
+        this.worldPlane.scene.add(ensure(this.mesh, 'Territory mesh was not created'));
 
         this.viewEvents.on(ViewEventType.MouseIn, () => {
             if (this.active) {
@@ -107,27 +83,8 @@ export class MapTerritoryCmp extends Component {
     protected onTick(): void { /** noop */ }
 
     private updateStyle(): void {
-        if (this.objects.line) {
-            const line = this.objects.line;
-
-            if (this.selected) {
-                line.material.color.set(0x333333);
-                line.material.opacity = 0.8;
-                line.position.setZ(0.01);
-            } else if (this.hovered) {
-                line.material.color.set(0x0000FF);
-                line.material.opacity = 0.4;
-                line.position.setZ(0.01);
-            } else {
-                line.material.color.set(0x888888);
-                line.material.opacity = 0.3;
-                line.position.setZ(0.0);
-            }
-        }
+        // todo
+        this.hovered;
+        this.selected;
     }
-}
-
-interface MapTerritoryObjects {
-    mesh?: NodeMesh;
-    line?: three.Line<three.BufferGeometry, three.LineBasicMaterial>;
 }
