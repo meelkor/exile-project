@@ -4,6 +4,7 @@ import { HomeUiScene } from '@exile/client/game/modules/home-ui/home-ui.scn';
 import { OverworldScene } from '@exile/client/game/modules/overworld/overworld.scn';
 import { GlobalStateModule } from '@exile/client/game/main/global-state-module';
 import { MainInit } from '@exile/client/game/main/main-init';
+import { PerformanceInfo } from '@exile/client/engine/renderer-gl/debug/performance-info.cmp';
 
 export class MainScene extends RootScene {
 
@@ -24,5 +25,6 @@ export class MainScene extends RootScene {
             this.add(homeUiScene);
         });
 
+        this.add(this.instantiate(PerformanceInfo));
     }
 }
