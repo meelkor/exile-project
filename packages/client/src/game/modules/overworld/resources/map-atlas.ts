@@ -16,8 +16,14 @@ export class MapAtlas extends Injectable {
 
     private chunkManifestMap: Map<number, ChunkManifest> = new Map();
 
+    private manifest?: OverworldMapManifest;
+
     private http = this.inject(Http);
     private loader = this.inject(GlobalLoader);
+
+    public get yScale(): number {
+        return ensure(this.manifest?.yScale, 'Manifest is not loaded or is invalid');
+    }
 
     /**
      * Pre-load all necessary map data.
@@ -27,6 +33,7 @@ export class MapAtlas extends Injectable {
     public load(url: string): Observable<MapAtlas> {
         return this.http.json<OverworldMapManifest>(`${url}/map-manifest.json`).pipe(
             map(manifest => {
+                this.manifest = manifest;
 
                 for (const chunk of manifest.chunks) {
                     const chunkId = this.getChunkId(chunk);

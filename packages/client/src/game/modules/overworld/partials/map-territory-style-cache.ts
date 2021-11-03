@@ -32,7 +32,7 @@ export class MapTerritoryStyle extends InjectableGlobal {
      */
     public readonly tileVector = new three.Vector3(
         1,
-        Math.sqrt(1 - 1 / 2 ** 2),
+        Math.sqrt(1 - 1 / 2 ** 2) * this.mapAtlas.yScale,
         0,
     );
 
@@ -124,11 +124,13 @@ export class MapTerritoryStyle extends InjectableGlobal {
             uv.setXY(i, newUvX, newUvY);
         }
 
+        plane.scale(1, this.mapAtlas.yScale, 1);
+
         return plane;
     }
 
     private makeLineGeometry(): three.BufferGeometry {
-        return new three.BufferGeometry().setFromPoints([
+        const geometry = new three.BufferGeometry().setFromPoints([
             new three.Vector3(-0.5, 0.28867512941360474, 0),
             new three.Vector3(-0.5, -0.28867512941360474, 0),
             new three.Vector3( 0, -0.5773502588272095, 0),
@@ -137,5 +139,9 @@ export class MapTerritoryStyle extends InjectableGlobal {
             new three.Vector3( 0, 0.5773502588272095, 0),
             new three.Vector3(-0.5, 0.28867512941360474, 0),
         ]);
+
+        geometry.scale(1, this.mapAtlas.yScale, 1);
+
+        return geometry;
     }
 }
