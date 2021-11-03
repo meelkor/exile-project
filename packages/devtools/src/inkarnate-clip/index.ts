@@ -9,6 +9,8 @@ Usage: inkarnate-clip
     -f X_OFFSET,Y_OFFSET    Offset of the first fully-visible tile from
                             bottom-left corner
     -o OUT_DIRECTORY        Where to save cut textures and map-manifest.json
+    -y Y_SCALE              Scale of the tile's height compared to the width
+                            (basically aspect ratio of bounding box)
 `;
 
 import { cli, assert } from '../cli';
@@ -25,6 +27,7 @@ cli(HELP, async (argv) => {
     const offset = argv('f', 'No offset provided', 'string');
     const inputTileWidth = argv('w', 'No tile width provided', 'int');
     const tileWidth = argv('t', 'No tile output width provided', 'int');
+    const yScale = argv('y', 'No y-scale provided', 'float');
 
     const offsetParts = offset.split(',');
 
@@ -38,7 +41,7 @@ cli(HELP, async (argv) => {
     assert(!Number.isNaN(offsetX), 'Invalid x offset');
     assert(!Number.isNaN(offsetY), 'Invalid y offset');
 
-    const { minChunkHeight, tilesPerChunkY, chunkHeight, bufferY } = getHeightLimits(tileWidth);
+    const { minChunkHeight, tilesPerChunkY, chunkHeight, bufferY } = getHeightLimits(tileWidth, yScale);
     const { minChunkWidth, tilesPerChunkX, chunkWidth, bufferX } = getWidthLimits(tileWidth);
 
     const chunkWriter = await ChunkWriter.create(inputFilePath, outputDirPath, scale);
@@ -98,14 +101,14 @@ cli(HELP, async (argv) => {
         }
     }
 
-    await chunkWriter.execute();
+    await chunkWriter.execute(yScale);
 });
 
-function getHeightLimits(tileWidth: number): HeightLimits {
+function getHeightLimits(tileWidth: number, yScale: number): HeightLimits {
     const w = tileWidth / 2;
     const rad = Math.PI / 6;
-    const a = w / Math.cos(rad);
-    const b = w * Math.tan(rad);
+    const b = w * Math.tan(rad) * yScale;
+    const a = w / Math.cos(rad) * yScale;
 
     const bufferY = a - b;
     const tilesPerChunkY = Math.floor((MAX_CHUNK_SIZE - bufferY) / (a + b));

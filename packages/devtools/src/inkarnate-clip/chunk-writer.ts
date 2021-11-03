@@ -40,11 +40,12 @@ export class ChunkWriter {
         this.queue.push(chunkDeets);
     }
 
-    public async execute(): Promise<void> {
+    public async execute(yScale: number): Promise<void> {
         await mkdirp(this.outputPath);
 
         const manifest: OverworldMapManifest = {
             chunks: [],
+            yScale,
         };
         const manifestPath = path.resolve(this.outputPath, 'map-manifest.json');
 
