@@ -17,6 +17,11 @@ export class Gl extends InjectableGlobal {
 
         const canvas = this.viewConfig.canvas;
 
+        canvas.width = this.viewConfig.width / this.viewConfig.backbufferScale;
+        canvas.height = this.viewConfig.height / this.viewConfig.backbufferScale;
+        canvas.style.width = `${this.viewConfig.width}px`;
+        canvas.style.height = `${this.viewConfig.height}px`;
+
         this.renderer = new three.WebGLRenderer({
             canvas,
             antialias: true,

@@ -1,3 +1,4 @@
+import { CameraConfig } from '@exile/client/engine/config/camera-config';
 import { GlPlane } from '@exile/client/engine/renderer-gl/internal/gl-plane';
 import { Pos } from '@exile/common/types/geometry';
 import * as three from 'three';
@@ -8,6 +9,8 @@ const DEFAULT_Z = 4.949645756898373;
  * Plane used for displaying world in perspective camera. The camera should not be
  */
 export class WorldPlane extends GlPlane {
+
+    private cameraConfig = this.inject(CameraConfig);
 
     public readonly scene: three.Scene;
 
@@ -21,11 +24,11 @@ export class WorldPlane extends GlPlane {
         this.scene = new three.Scene();
         // this.scene.fog = new three.Fog(0xddddff, 0, 8);
 
-        this.camera = new three.PerspectiveCamera(45, aspect);
+        this.camera = new three.PerspectiveCamera(this.cameraConfig.fieldOfView, aspect);
 
         this.camera.position.set(0, 0, DEFAULT_Z);
         this.camera.lookAt(0, 0, 0);
-        this.camera.rotateX(Math.PI * 0.07);
+        this.camera.rotateX(this.cameraConfig.angle);
     }
 
     public pan(from: Pos, to: Pos): void {
