@@ -23,12 +23,14 @@ export class Renderer extends InjectableGlobal {
     constructor() {
         super();
         this.gl.renderer.autoClear = false;
+        this.gl.renderer.info.autoReset = false;
     }
 
     /**
      * Render all known layers
      */
     public render(hrt: number): void {
+        this.gl.renderer.info.reset();
         this.gl.renderer.clear();
 
         for (const plane of this.planes) {
