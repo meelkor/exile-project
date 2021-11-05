@@ -95,14 +95,15 @@ export class InputObserver extends InjectableGlobal {
         canvas.addEventListener('mouseleave', e => {
             e.preventDefault();
 
-            this.eventQueue.push({
-                type: CursorEventType.Leave,
-                // Technically cannot be nullish at this point
-                lastPos: this.pos!,
-            });
+            if (this.pos) {
+                this.eventQueue.push({
+                    type: CursorEventType.Leave,
+                    lastPos: this.pos,
+                });
 
-            this.pos = undefined;
-            this.lastMouseDown = undefined;
+                this.pos = undefined;
+                this.lastMouseDown = undefined;
+            }
         });
 
         canvas.addEventListener('wheel', e => {
