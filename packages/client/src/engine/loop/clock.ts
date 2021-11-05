@@ -8,7 +8,9 @@ export class Clock extends InjectableGlobal {
 
     private config = this.inject(AppConfig);
 
-    private readonly minTimeBetweenFrames = 1000 / (this.config.fpsLock ?? 60);
+    private readonly minTimeBetweenFrames = this.config.fpsLock
+        ? 1000 / (this.config.fpsLock ?? 60)
+        : 0;
 
     private lastFiredHrt: number = 0;
 
@@ -25,20 +27,18 @@ export class Clock extends InjectableGlobal {
     }
 
     private freeLoop = (hrt: DOMHighResTimeStamp): void => {
-        window.requestAnimationFrame(this.freeLoop);
-
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.handler!(hrt);
+
+        window.requestAnimationFrame(this.freeLoop);
     }
 
     private fpsLoop = (hrt: DOMHighResTimeStamp): void => {
-        window.requestAnimationFrame(this.fpsLoop);
-
         if (hrt - this.lastFiredHrt > this.minTimeBetweenFrames) {
             this.lastFiredHrt = hrt;
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             this.handler!(hrt);
         }
+
+        window.requestAnimationFrame(this.fpsLoop);
     }
 }
 
