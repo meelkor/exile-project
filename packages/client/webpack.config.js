@@ -53,6 +53,7 @@ module.exports = (env) => ({
                 {
                     from: './src/assets',
                     to: './assets',
+                    noErrorOnMissing: true,
                 },
             ],
         }),
