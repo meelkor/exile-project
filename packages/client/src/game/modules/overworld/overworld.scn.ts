@@ -6,7 +6,7 @@ import { MapCmp } from '@exile/client/game/modules/overworld/partials/map.cmp';
 import { GlobalStateModule, GlobalModuleChange } from '@exile/client/game/main/global-state-module';
 import { asNumberOrUndefined } from '@exile/common/utils/assert';
 import { TerritoryController } from '@exile/client/game/modules/overworld/partials/territory-controller';
-import { TerritoryInstanceController } from '@exile/client/game/modules/overworld/partials/territory-instance-controller';
+import { TerritoryInstanceController } from '@exile/client/game/modules/overworld/partials/handdrawn/territory-instance-controller';
 
 export class OverworldScene extends RootScene {
 

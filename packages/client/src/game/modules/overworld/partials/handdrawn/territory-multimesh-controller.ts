@@ -1,5 +1,5 @@
 import { Territory } from '@exile/client/game/models/territory';
-import { MapTerritoryStyle } from '@exile/client/game/modules/overworld/partials/map-territory-style';
+import { MapTerritoryStyle } from '@exile/client/game/modules/overworld/partials/handdrawn/territory-handdrawn-style';
 import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
 import { MapAtlas } from '@exile/client/game/modules/overworld/resources/map-atlas';
 import { TerritoryController } from '@exile/client/game/modules/overworld/partials/territory-controller';

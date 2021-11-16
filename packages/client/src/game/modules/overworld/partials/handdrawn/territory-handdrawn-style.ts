@@ -8,8 +8,8 @@ import { onBeforeCompile } from '@exile/client/engine/renderer-gl/extensions/on-
 import { TerritoryArranger } from '@exile/client/game/modules/overworld/partials/territory-arranger';
 
 /**
- * Serving storing materials and geometries that may be shared between
- * instances of territory components.
+ * Helper for creating geometries and loading textures for the handdrawn-like
+ * 2D maps
  */
 export class MapTerritoryStyle extends InjectableGlobal {
 
