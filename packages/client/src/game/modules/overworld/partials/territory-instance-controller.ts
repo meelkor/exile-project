@@ -8,6 +8,7 @@ import { TerritoryController } from '@exile/client/game/modules/overworld/partia
 import { WorldPlane } from '@exile/client/engine/renderer-gl/planes/world-plane';
 import { frustumCullMesh } from '@exile/client/engine/renderer-gl/extensions/object-level-culling';
 import { onBeforeCompile } from '@exile/client/engine/renderer-gl/extensions/on-before-compile';
+import { TerritoryArranger } from '@exile/client/game/modules/overworld/partials/territory-arranger';
 
 /**
  * Controller creating instanced mesh of territories
@@ -15,6 +16,8 @@ import { onBeforeCompile } from '@exile/client/engine/renderer-gl/extensions/on-
 export class TerritoryInstanceController extends TerritoryController {
 
     private mapTerritoryStyle = this.inject(MapTerritoryStyle);
+
+    private territoryArranger = this.inject(TerritoryArranger);
 
     private mapAtlas = this.inject(MapAtlas);
 
@@ -56,7 +59,7 @@ export class TerritoryInstanceController extends TerritoryController {
             const topRight = new three.Vector3(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
 
             for (const [i, territory] of territories.entries()) {
-                const tVec = this.mapTerritoryStyle.getTerritoryVector(territory);
+                const tVec = this.territoryArranger.getTerritoryVector(territory);
                 const objMatrix = new three.Matrix4().makeTranslation(tVec.x, tVec.y, tVec.z);
 
                 mesh.setMatrixAt(i, objMatrix);

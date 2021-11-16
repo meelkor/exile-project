@@ -7,6 +7,7 @@ import { WorldPlane } from '@exile/client/engine/renderer-gl/planes/world-plane'
 import { setUniform } from '@exile/client/engine/renderer-gl/utils';
 import { Material, Texture } from 'three';
 import { onBeforeCompile } from '@exile/client/engine/renderer-gl/extensions/on-before-compile';
+import { TerritoryArranger } from '@exile/client/game/modules/overworld/partials/territory-arranger';
 
 /**
  * Utility rendering territories by creating mesh for each territory
@@ -14,6 +15,8 @@ import { onBeforeCompile } from '@exile/client/engine/renderer-gl/extensions/on-
 export class TerritoryMultimeshController extends TerritoryController {
 
     private mapTerritoryStyle = this.inject(MapTerritoryStyle);
+
+    private territoryArranger = this.inject(TerritoryArranger);
 
     private mapAtlas = this.inject(MapAtlas);
 
@@ -34,7 +37,7 @@ export class TerritoryMultimeshController extends TerritoryController {
 
         const geometry = this.mapTerritoryStyle.planeGeometry;
         const material = this.textureMaterials.get(texture);
-        const vec = this.mapTerritoryStyle.getTerritoryVector(territory);
+        const vec = this.territoryArranger.getTerritoryVector(territory);
 
         const mesh = new NodeMesh(geometry, material, true);
 
