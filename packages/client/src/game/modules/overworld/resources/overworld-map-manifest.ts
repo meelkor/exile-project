@@ -8,7 +8,5 @@ export interface OverworldMapManifest {
 export interface ChunkManifest {
     fromTile: Pos;
     toTile: Pos;
-    width: number;
-    height: number;
     filename: string;
 }

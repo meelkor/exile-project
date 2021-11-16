@@ -19,7 +19,7 @@ import { ChunkWriter } from './chunk-writer';
 /**
  * Both max width and height of one output texture
  */
-const MAX_CHUNK_SIZE = 1024;
+const DEFAULT_TEXTURE_SIZE = 2048;
 
 cli(HELP, async (argv) => {
     const inputFilePath = argv('i', 'No input file provided', 'string');
@@ -28,6 +28,7 @@ cli(HELP, async (argv) => {
     const inputTileWidth = argv('w', 'No tile width provided', 'int');
     const tileWidth = argv('t', 'No tile output width provided', 'int');
     const yScale = argv('y', 'No y-scale provided', 'float');
+    const textureSize = argv('s', 'Output texture size', 'float', DEFAULT_TEXTURE_SIZE);
 
     const offsetParts = offset.split(',');
 
@@ -41,8 +42,8 @@ cli(HELP, async (argv) => {
     assert(!Number.isNaN(offsetX), 'Invalid x offset');
     assert(!Number.isNaN(offsetY), 'Invalid y offset');
 
-    const { minChunkHeight, tilesPerChunkY, chunkHeight, bufferY } = getHeightLimits(tileWidth, yScale);
-    const { minChunkWidth, tilesPerChunkX, chunkWidth, bufferX } = getWidthLimits(tileWidth);
+    const { minChunkHeight, tilesPerChunkY, chunkHeight, bufferY } = getHeightLimits(tileWidth, yScale, textureSize);
+    const { minChunkWidth, tilesPerChunkX, chunkWidth, bufferX } = getWidthLimits(tileWidth, textureSize);
 
     const chunkWriter = await ChunkWriter.create(inputFilePath, outputDirPath, scale);
 
@@ -101,17 +102,17 @@ cli(HELP, async (argv) => {
         }
     }
 
-    await chunkWriter.execute(yScale);
+    await chunkWriter.execute(textureSize, yScale);
 });
 
-function getHeightLimits(tileWidth: number, yScale: number): HeightLimits {
+function getHeightLimits(tileWidth: number, yScale: number, textureSize: number): HeightLimits {
     const w = tileWidth / 2;
     const rad = Math.PI / 6;
     const b = w * Math.tan(rad) * yScale;
     const a = w / Math.cos(rad) * yScale;
 
     const bufferY = a - b;
-    const tilesPerChunkY = Math.floor((MAX_CHUNK_SIZE - bufferY) / (a + b));
+    const tilesPerChunkY = Math.floor((textureSize - bufferY) / (a + b));
     const minChunkHeight = Math.ceil(2 * a);
     const chunkHeight = Math.ceil((tilesPerChunkY) * (a + b) + bufferY);
 
@@ -123,8 +124,8 @@ function getHeightLimits(tileWidth: number, yScale: number): HeightLimits {
     };
 }
 
-function getWidthLimits(tileWidth: number): WidthLimits {
-    const tilesPerChunkX = Math.floor((MAX_CHUNK_SIZE - tileWidth / 2) / tileWidth);
+function getWidthLimits(tileWidth: number, textureSize: number): WidthLimits {
+    const tilesPerChunkX = Math.floor((textureSize - tileWidth / 2) / tileWidth);
     const minChunkWidth = tileWidth;
     const chunkWidth = tilesPerChunkX * tileWidth + Math.ceil(tileWidth / 2);
     const bufferX = tileWidth / 2;

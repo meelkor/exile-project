@@ -17,9 +17,9 @@ root.provide(new AppConfig({
 }));
 root.provide(new ViewConfig({
     canvas,
-    width: 1920,
-    height: 1080,
-    backbufferScale: 1.5,
+    width: 1280,
+    height: 720,
+    backbufferScale: 1,
 }));
 root.provide(new CameraConfig({
     angle: Math.PI * 0.11,

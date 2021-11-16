@@ -1,14 +1,11 @@
 import * as three from 'three';
 import { enableTimeUniform } from '@exile/client/engine/renderer-gl/extensions/time';
-import { enableFogIntensity, setFogIntensity } from '@exile/client/engine/renderer-gl/extensions/fog-intensity';
+import { enableFogIntensity } from '@exile/client/engine/renderer-gl/extensions/fog-intensity';
 import { InjectableGlobal } from '@exile/common/utils/di';
 import { Pos } from '@exile/common/types/geometry';
 import { ensure } from '@exile/common/utils/assert';
-import { ClaimState, Territory } from '@exile/client/game/models/territory';
 import { MapAtlas } from '@exile/client/game/modules/overworld/resources/map-atlas';
 import { onBeforeCompile } from '@exile/client/engine/renderer-gl/extensions/on-before-compile';
-import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
-import { setUniform } from '@exile/client/engine/renderer-gl/utils';
 
 /**
  * Should not be changed as some calculations are simplified by the distance
@@ -36,32 +33,7 @@ export class MapTerritoryStyle extends InjectableGlobal {
         0,
     );
 
-    private chunkMaterialCache: Map<three.Texture, three.Material> = new Map();
-
     private borderTexture = this.createBorderTexture();
-
-    public getTerritoryMesh(territory: Territory): NodeMesh {
-        const unknown = territory.claim === ClaimState.Unknown;
-
-        const { rangeX, rangeY, texture } = this.mapAtlas.getTileTexture(territory);
-
-        const material = this.getTextureMaterial(texture);
-
-        const vec = this.getTerritoryVector(territory);
-
-        const mesh = new NodeMesh(this.planeGeometry, material, true);
-
-        setFogIntensity(mesh, unknown ? 0.6 : 0.07);
-
-        setUniform(mesh, 'rangeX0', rangeX[0]);
-        setUniform(mesh, 'rangeX1', rangeX[1]);
-        setUniform(mesh, 'rangeY0', rangeY[0]);
-        setUniform(mesh, 'rangeY1', rangeY[1]);
-
-        mesh.position.copy(vec);
-
-        return mesh;
-    }
 
     public getTerritoryVector(pos: Pos): three.Vector3 {
         const vec = new three.Vector3(pos.x, pos.y, 0)
@@ -74,52 +46,44 @@ export class MapTerritoryStyle extends InjectableGlobal {
         return vec;
     }
 
-    private getTextureMaterial(texture: three.Texture): three.Material {
-        if (!this.chunkMaterialCache.has(texture)) {
-            const material = new three.MeshBasicMaterial({
-                map: texture,
-                color: '#FFFFFF',
-            });
+    public makeTextureMaterial(texture: three.Texture): three.Material {
+        const material = new three.MeshBasicMaterial({
+            map: texture,
+            color: '#FFFFFF',
+        });
 
-            onBeforeCompile(material, shader => {
-                shader.vertexShader = `
-                    uniform float rangeX0;
-                    uniform float rangeX1;
-                    uniform float rangeY0;
-                    uniform float rangeY1;
-                    varying vec2 origUv;
-                    ${shader.vertexShader}
-                `;
-                shader.vertexShader = shader.vertexShader.replace(`#include <uv_vertex>`, /* glsl */`
-                    origUv = uv;
-                    vUv = uv * vec2(rangeX1 - rangeX0, rangeY1 - rangeY0) + vec2(rangeX0, rangeY0);
-                `);
+        onBeforeCompile(material, shader => {
+            shader.vertexShader = `
+                varying vec2 origUv;
+                ${shader.vertexShader}
+            `;
+            shader.vertexShader = shader.vertexShader.replace(`#include <uv_vertex>`, /* glsl */`
+                origUv = uv;
+                #include <uv_vertex>
+            `);
 
-                shader.fragmentShader = `
-                    varying vec2 origUv;
-                    uniform sampler2D border;
-                    ${shader.fragmentShader}
-                `;
-                shader.fragmentShader = shader.fragmentShader.replace(`#include <map_fragment>`, /* glsl */`
-                    vec4 texelColor = texture2D(map, vUv);
-                    vec4 borderColor = texture2D(border, origUv);
+            shader.fragmentShader = `
+                varying vec2 origUv;
+                uniform sampler2D border;
+                ${shader.fragmentShader}
+            `;
+            shader.fragmentShader = shader.fragmentShader.replace(`#include <map_fragment>`, /* glsl */`
+                vec4 texelColor = texture2D(map, vUv);
+                vec4 borderColor = texture2D(border, origUv);
 
-                    texelColor = mapTexelToLinear( texelColor * borderColor );
-                    diffuseColor *= texelColor;
-                `);
+                texelColor = mapTexelToLinear( texelColor * borderColor );
+                diffuseColor *= texelColor;
+            `);
 
-                shader.uniforms.border = {
-                    value: this.borderTexture,
-                };
-            });
+            shader.uniforms.border = {
+                value: this.borderTexture,
+            };
+        });
 
-            enableTimeUniform(material);
-            enableFogIntensity(material);
+        enableTimeUniform(material);
+        enableFogIntensity(material);
 
-            this.chunkMaterialCache.set(texture, material);
-        }
-
-        return ensure(this.chunkMaterialCache.get(texture));
+        return material;
     }
 
     private makeGeometryTemplate(): three.CircleBufferGeometry {
@@ -191,7 +155,7 @@ export class MapTerritoryStyle extends InjectableGlobal {
             }
         }
 
-        ctx.lineWidth = 4;
+        ctx.lineWidth = 2;
         ctx.strokeStyle = '#999999';
 
         ctx.stroke();

@@ -32,6 +32,37 @@ export class NodeMesh<
 }
 
 /**
+ * Enhanced threejs Mesh which has types userData automatically assigning the nodeId.
+ */
+export class InstancedNodeMesh<
+    TGeometry extends three.BufferGeometry = three.BufferGeometry,
+    TMaterial extends three.Material | three.Material[] = three.Material | three.Material[],
+> extends three.InstancedMesh<TGeometry, TMaterial> {
+
+    public override readonly userData: MeshUserData;
+
+    public boundingSphere?: three.Sphere;
+
+    constructor(
+        geometry: TGeometry,
+        material: TMaterial,
+        count: number = 0,
+        interactive?: boolean,
+    ) {
+        super(geometry, material, count);
+
+        const node = GlobalTreeNode.get();
+
+        assert(node, 'Cannot create NodeMesh outside node lifecycle.');
+
+        this.userData = {
+            nodeId: TreeNode.getId(node),
+            interactive,
+        };
+    }
+}
+
+/**
  * User data supported (and expected) by every mesh used the gl renderer.
  */
 export interface MeshUserData {

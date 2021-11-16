@@ -1,16 +1,26 @@
 import * as three from 'three';
 
-export function onBeforeCompile<T extends { onBeforeCompile: (shader: three.Shader, renderer: three.WebGLRenderer) => void }>(
-    material: T,
-    fn: (shader: three.Shader, renderer: three.WebGLRenderer, material: T) => void,
+export function onBeforeCompile(
+    _material: three.Material,
+    fn: OnBeforeCompile,
 ): void {
-    const old = material.onBeforeCompile;
+    const material = _material as unknown as PatchedOnBeforeCompileMaterial;
 
-    material.onBeforeCompile = function (shader, rdr) {
-        fn(shader, rdr, this);
+    if (!material.onBeforeCompileFns) {
+        material.onBeforeCompileFns = [];
 
-        if (old) {
-            (old as any).call(this, shader, rdr, this);
-        }
-    };
+        material.onBeforeCompile = function (shader, rdr) {
+            for (const obc of this.onBeforeCompileFns!) {
+                obc(shader, rdr, this);
+            }
+        };
+    }
+
+    material.onBeforeCompileFns.push(fn);
 }
+
+interface PatchedOnBeforeCompileMaterial extends three.Material {
+    onBeforeCompileFns?: OnBeforeCompile[];
+}
+
+type OnBeforeCompile = (shader: three.Shader, renderer: three.WebGLRenderer, material: three.Material) => void;

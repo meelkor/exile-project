@@ -5,25 +5,28 @@ import { CameraTrapCmp } from '@exile/client/game/modules/overworld/partials/cam
 import { MapCmp } from '@exile/client/game/modules/overworld/partials/map.cmp';
 import { GlobalStateModule, GlobalModuleChange } from '@exile/client/game/main/global-state-module';
 import { asNumberOrUndefined } from '@exile/common/utils/assert';
+import { TerritoryController } from '@exile/client/game/modules/overworld/partials/territory-controller';
+import { TerritoryInstanceController } from '@exile/client/game/modules/overworld/partials/territory-instance-controller';
 
 export class OverworldScene extends RootScene {
 
     private gameEvents = this.inject(GameEvents);
 
-    private map = this.instantiate(MapCmp);
-    private cameraTrap = this.instantiate(CameraTrapCmp);
-
     protected onAdd(): void {
+        this.provide(TerritoryInstanceController, TerritoryController);
+
+        const map = this.instantiate(MapCmp);
+        const cameraTrap = this.instantiate(CameraTrapCmp);
 
         const globalStateModule = this.store.require(GlobalStateModule);
 
-        this.map.setTerritories(globalStateModule.getTerritoryList());
+        map.actions.setTerritories(globalStateModule.getTerritoryList());
 
-        this.add(this.map);
-        this.add(this.cameraTrap);
+        this.add(map);
+        this.add(cameraTrap);
 
         this.registerGameEventListeners();
-        this.registerStoreListeners();
+        this.registerStoreListeners(map);
     }
 
     private registerGameEventListeners(): void {
@@ -36,16 +39,16 @@ export class OverworldScene extends RootScene {
         });
     }
 
-    private registerStoreListeners(): void {
+    private registerStoreListeners(map: MapCmp): void {
         const globalStateModule = this.store.require(GlobalStateModule);
 
         globalStateModule.on(GlobalModuleChange.SelectedTerritory, ({ after, before }) => {
             if (before) {
-                this.map.actions.deselectTerritory(before);
+                map.actions.deselectTerritory(before);
             }
 
             if (after) {
-                this.map.actions.selectTerritory(after);
+                map.actions.selectTerritory(after);
             }
         });
     }

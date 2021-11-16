@@ -1,7 +1,9 @@
 import { GlPlane } from '@exile/client/engine/renderer-gl/internal/gl-plane';
 import { assert } from '@exile/common/utils/assert';
+import { DebugName } from '@exile/common/utils/debug/class';
 import * as three from 'three';
 
+@DebugName('UiPlane')
 export class UiPlane extends GlPlane {
 
     public readonly scene: three.Scene;

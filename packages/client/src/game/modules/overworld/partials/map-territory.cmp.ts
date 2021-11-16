@@ -1,12 +1,10 @@
 import { Component } from '@exile/client/engine/component/component';
-import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
-import { WorldPlane } from '@exile/client/engine/renderer-gl/planes/world-plane';
 import { ClaimState, Territory } from '@exile/client/game/models/territory';
-import { MapTerritoryStyle } from '@exile/client/game/modules/overworld/partials/map-territory-style-cache';
 import { Cursor, CursorType } from '@exile/client/engine/view/cursor';
 import { ViewEventType } from '@exile/client/engine/input/view-event-type';
-import { assert, ensure } from '@exile/common/utils/assert';
+import { assert } from '@exile/common/utils/assert';
 import { OverworldEvents } from '@exile/client/game/modules/overworld/overworld-events';
+import { TerritoryController } from '@exile/client/game/modules/overworld/partials/territory-controller';
 
 /**
  * Component visualizing single tile (territory) on hex map. Territory needs to
@@ -14,13 +12,9 @@ import { OverworldEvents } from '@exile/client/game/modules/overworld/overworld-
  */
 export class MapTerritoryCmp extends Component {
 
-    private style = this.inject(MapTerritoryStyle);
-
-    private worldPlane = this.inject(WorldPlane);
-
     private cursor = this.inject(Cursor);
 
-    private mesh?: NodeMesh;
+    private territoryController = this.inject(TerritoryController);
 
     private territoryId?: number;
 
@@ -35,7 +29,7 @@ export class MapTerritoryCmp extends Component {
 
     public actions = {
         setTerritoryInfo: (territory: Territory): void => {
-            this.mesh = this.style.getTerritoryMesh(territory);
+            this.territoryController.renderTerritory(territory);
 
             this.updateStyle();
 
@@ -51,8 +45,6 @@ export class MapTerritoryCmp extends Component {
     }
 
     protected onInit(): void {
-        this.worldPlane.scene.add(ensure(this.mesh, 'Territory mesh was not created'));
-
         this.viewEvents.on(ViewEventType.MouseIn, () => {
             if (this.active) {
                 this.hovered = true;

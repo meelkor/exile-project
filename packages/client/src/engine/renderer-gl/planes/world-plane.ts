@@ -1,6 +1,7 @@
 import { CameraConfig } from '@exile/client/engine/config/camera-config';
 import { GlPlane } from '@exile/client/engine/renderer-gl/internal/gl-plane';
 import { Pos } from '@exile/common/types/geometry';
+import { DebugName } from '@exile/common/utils/debug/class';
 import * as three from 'three';
 
 const DEFAULT_Z = 4.949645756898373;
@@ -8,6 +9,7 @@ const DEFAULT_Z = 4.949645756898373;
 /**
  * Plane used for displaying world in perspective camera. The camera should not be
  */
+@DebugName('WorldPlane')
 export class WorldPlane extends GlPlane {
 
     private cameraConfig = this.inject(CameraConfig);

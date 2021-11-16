@@ -24,6 +24,7 @@ export class PerformanceInfo extends Component {
         this.valueElements.draws = this.makeRow(cont, 'Draws');
         this.valueElements.geometries = this.makeRow(cont, 'Geometries');
         this.valueElements.textures = this.makeRow(cont, 'Textures');
+        this.valueElements.programs = this.makeRow(cont, 'Programs');
         this.valueElements.triangles = this.makeRow(cont, 'Triangles');
 
         document.body.append(cont);
@@ -36,6 +37,7 @@ export class PerformanceInfo extends Component {
         this.valueElements.triangles!.innerText = info.render.triangles.toString();
         this.valueElements.geometries!.innerText = info.memory.geometries.toString();
         this.valueElements.textures!.innerText = info.memory.textures.toString();
+        this.valueElements.programs!.innerText = info.programs?.length.toString() || '?';
     }
 
     private makeRow(container: HTMLElement, name: string): HTMLElement {
