@@ -4,8 +4,6 @@ import { Pos } from '@exile/common/types/geometry';
 import { DebugName } from '@exile/common/utils/debug/class';
 import * as three from 'three';
 
-const DEFAULT_Z = 4.949645756898373;
-
 /**
  * Plane used for displaying world in perspective camera. The camera should not be
  */
@@ -28,7 +26,7 @@ export class WorldPlane extends GlPlane {
 
         this.camera = new three.PerspectiveCamera(this.cameraConfig.fieldOfView, aspect);
 
-        this.camera.position.set(0, 0, DEFAULT_Z);
+        this.camera.position.set(0, 0, this.cameraConfig.height);
         this.camera.lookAt(0, 0, 0);
         this.camera.rotateX(this.cameraConfig.angle);
     }

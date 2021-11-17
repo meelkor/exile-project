@@ -5,4 +5,5 @@ export class CameraConfig extends InjectableValue<ICameraConfig> { }
 interface ICameraConfig {
     fieldOfView: number;
     angle: number;
+    height: number;
 }

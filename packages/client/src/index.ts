@@ -24,6 +24,7 @@ root.provide(new ViewConfig({
 root.provide(new CameraConfig({
     angle: Math.PI * 0.11,
     fieldOfView: 40,
+    height: 4.9,
 }));
 
 root.provide(NoopServer, Server);
