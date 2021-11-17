@@ -7,15 +7,21 @@
     "build": "tsc"
   },
   "dependencies": {
+    "change-case": "^4.1.2",
     "jimp": "^0.16.1",
     "minimist": "^1.2.5",
     "mkdirp": "^1.0.4",
-    "module-alias": "^2.2.2"
+    "module-alias": "^2.2.2",
+    "stream-to-string": "^1.2.0",
+    "svg2ttf": "^6.0.3",
+    "svgicons2svgfont": "^10.0.5"
   },
   "devDependencies": {
     "@types/minimist": "^1.2.2",
     "@types/mkdirp": "^1.0.2",
     "@types/module-alias": "^2.0.1",
-    "@types/node": "^16.11.6"
+    "@types/node": "^16.11.6",
+    "@types/svg2ttf": "^5.0.1",
+    "@types/svgicons2svgfont": "^10.0.1"
   }
 }

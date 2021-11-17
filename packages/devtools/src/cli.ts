@@ -37,6 +37,16 @@ export function assert(val: unknown, errMsg: string): asserts val {
 
 function makeArgvProvider(argv: ParsedArgs): ArgvProvider {
     return (key: string, errMsg?: string, test?: ArgvTest, def?: any) => {
+        if (key === '_') {
+            const args = argv._;
+
+            if (errMsg && args.length === 0) {
+                throw new CliError(errMsg);
+            }
+
+            return args;
+        }
+
         let value = argv[key];
 
         if (value === undefined && def !== undefined) {
@@ -80,6 +90,7 @@ interface ArgvProvider {
     (key: string, errorMsg?: string, test?: ArgvTest, def?: any): any;
     (key: string, errorMsg: string | undefined, test: 'string', def?: any): string;
     (key: string, errorMsg: string | undefined, test: 'int' | 'float', def?: any): number;
+    (key: '_'): string[];
 }
 
 type ArgvTest = 'string' | 'int' | 'float';

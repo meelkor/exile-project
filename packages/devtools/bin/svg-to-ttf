@@ -1,0 +1,3 @@
+#!/bin/node
+
+require('../dist/devtools/src/svg-to-ttf');
