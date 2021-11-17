@@ -11,6 +11,10 @@ export abstract class Injectable extends InjectableBase {
         return Class.prototype instanceof Injectable;
     }
 
+    public static substitute<T extends Injectable>(that: Injectable, Class: Constructor<T>, Sub: Constructor<T>): void {
+        that.injector.substitute(Class, Sub);
+    }
+
     private injector: Injector;
 
     constructor(parentOnly: boolean = false) {

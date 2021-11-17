@@ -14,6 +14,8 @@ export class Injector implements CompatibleInjector {
 
     private registry = new Map<AbstractConstructor<InjectableBase>, any>();
 
+    private substitutions: Map<Constructor<any>, Constructor<any>> = new Map;
+
     constructor (private parent?: CompatibleInjector) { }
 
     public provide<T>(value: InjectableValue<T>, Alias?: AbstractConstructor<InjectableBase>): T;
@@ -74,7 +76,8 @@ export class Injector implements CompatibleInjector {
         currentParentInjector = this;
 
         if ('prototype' in instanceOrClass && Injectable.isConstructor(instanceOrClass)) {
-            const instance = new instanceOrClass;
+            const RealClass = this.substitutions.get(instanceOrClass) || instanceOrClass;
+            const instance = new RealClass;
 
             InjectableBase.runAfterHookConstructed(instance);
 
@@ -88,6 +91,16 @@ export class Injector implements CompatibleInjector {
                 name: instanceOrClass.constructor as AbstractConstructor<InjectableValue<T>>,
             };
         }
+    }
+
+    /**
+     * Tell injector to substitute given class with another when it's being
+     * created by instantiate or provide calls. Shouldn't really be used for
+     * production code, but useful for utility code that needs different class
+     * to be used without changing the creator's code.
+     */
+    public substitute<T>(Class: Constructor<T>, Sub: Constructor<T>): void {
+        this.substitutions.set(Class, Sub);
     }
 }
 
