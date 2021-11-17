@@ -37,6 +37,7 @@ export class Renderer extends InjectableGlobal {
             updateTimeUniforms(hrt);
 
             this.gl.renderer.render(plane.scene, GlPlane.getCamera(plane));
+            this.gl.renderer.clearDepth();
         }
     }
 
