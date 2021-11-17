@@ -6,7 +6,7 @@ import { DebugName } from '@exile/common/utils/debug/class';
 @DebugName('UnnamedStateModule')
 export abstract class StateModule<T extends Record<string, any>, E extends SupportedEventType, TPayloads extends PayloadMap<E>> extends EventsQueued<E, TPayloads> {
 
-    public abstract actions: Record<string, () => void>;
+    public abstract actions: Record<string, (...args: any[]) => void>;
 
     protected state: T;
 
