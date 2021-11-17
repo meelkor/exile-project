@@ -5,6 +5,7 @@ import ptserif from '@exile/client/resources/fonts/ptserif-regular.ttf';
 import { assert } from '@exile/common/utils/assert';
 import { ViewEventType } from '@exile/client/engine/input/view-event-type';
 import { NodeText } from '@exile/client/engine/renderer-gl/text';
+import { enableTextLength, setTextLength } from '@exile/client/engine/renderer-gl/extensions/text-length';
 
 export class AdvTextCmp extends Component {
 
@@ -32,6 +33,8 @@ export class AdvTextCmp extends Component {
         const width = this.uiPlane.getWidth('100%') - 2 * this.uiPlane.getWidth(this.margin);
 
         this.textMesh = new NodeText({ interactive: true });
+
+        enableTextLength(this.textMesh);
 
         this.textMesh.position.x = this.margin;
         this.textMesh.position.y = this.uiPlane.bottom(this.margin);
@@ -72,7 +75,7 @@ export class AdvTextCmp extends Component {
                 } else {
                     const length = ((hrt - this.drawStart) / 1000) * this.charsPerSecond;
 
-                    this.textMesh.setTextLength(length);
+                    setTextLength(this.textMesh, length);
 
                     if (length >= this.drawLength) {
                         this.drawing = false;
@@ -92,7 +95,7 @@ export class AdvTextCmp extends Component {
         this.drawStart = 0;
         this.drawing = false;
 
-        this.textMesh.setTextLength(0);
+        setTextLength(this.textMesh, 0);
 
         if (textUnchanged) {
             this.drawing = true;
