@@ -4,24 +4,6 @@ import { assert } from '@exile/common/utils/assert';
 
 export class GlobalStateModule extends StateModule<GlobalState, GlobalModuleChange, GlobalModulePayloads> {
 
-    public actions = {
-        selectTerritory: (territoryId?: number): void => {
-            const selected = this.state.selectedTerritory;
-
-            if (territoryId !== selected) {
-                this.state.selectedTerritory = territoryId;
-
-                this.enqueue(
-                    GlobalModuleChange.SelectedTerritory,
-                    {
-                        before: selected,
-                        after: territoryId,
-                    },
-                );
-            }
-        },
-    };
-
     /// Getters and utilities ///
 
     public getTerritoryList(): Territory[] {
@@ -34,6 +16,24 @@ export class GlobalStateModule extends StateModule<GlobalState, GlobalModuleChan
         assert(t, `Territory ${tId} doesn't exist`);
 
         return t;
+    }
+
+    /// Actions ///
+
+    public selectTerritory(territoryId?: number): void {
+        const selected = this.state.selectedTerritory;
+
+        if (territoryId !== selected) {
+            this.state.selectedTerritory = territoryId;
+
+            this.enqueue(
+                GlobalModuleChange.SelectedTerritory,
+                {
+                    before: selected,
+                    after: territoryId,
+                },
+            );
+        }
     }
 }
 

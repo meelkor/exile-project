@@ -1,20 +1,16 @@
 import { GameEvents } from '@exile/client/engine/game-event/game-events';
 import { RootScene } from '@exile/client/engine/scene/root-scene';
 import { OverworldEvents } from '@exile/client/game/modules/overworld/overworld-events';
-import { CameraTrapCmp } from '@exile/client/game/modules/overworld/partials/camera-trap.cmp';
-import { MapCmp } from '@exile/client/game/modules/overworld/partials/map.cmp';
+import { CameraTrapCmp } from '@exile/client/game/modules/overworld/map/camera-trap.cmp';
+import { MapCmp } from '@exile/client/game/modules/overworld/map/map.cmp';
 import { GlobalStateModule, GlobalModuleChange } from '@exile/client/game/main/global-state-module';
 import { asNumberOrUndefined } from '@exile/common/utils/assert';
-import { TerritoryController } from '@exile/client/game/modules/overworld/partials/territory-controller';
-import { TerritoryInstanceController } from '@exile/client/game/modules/overworld/partials/handdrawn/territory-instance-controller';
 
 export class OverworldScene extends RootScene {
 
     private gameEvents = this.inject(GameEvents);
 
     protected onAdd(): void {
-        this.provide(TerritoryInstanceController, TerritoryController);
-
         const map = this.instantiate(MapCmp);
         const cameraTrap = this.instantiate(CameraTrapCmp);
 
@@ -35,7 +31,7 @@ export class OverworldScene extends RootScene {
         this.gameEvents.on(OverworldEvents.SelectTerritory, payload => {
             const territoryId = asNumberOrUndefined(payload);
 
-            globalStateModule.actions.selectTerritory(territoryId);
+            globalStateModule.selectTerritory(territoryId);
         });
     }
 

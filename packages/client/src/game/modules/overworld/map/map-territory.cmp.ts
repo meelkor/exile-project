@@ -4,7 +4,7 @@ import { Cursor, CursorType } from '@exile/client/engine/view/cursor';
 import { ViewEventType } from '@exile/client/engine/input/view-event-type';
 import { assert } from '@exile/common/utils/assert';
 import { OverworldEvents } from '@exile/client/game/modules/overworld/overworld-events';
-import { TerritoryController } from '@exile/client/game/modules/overworld/partials/territory-controller';
+import { OverhexController } from '@exile/client/game/modules/overworld/map/overhex/overhex-controller';
 
 /**
  * Component visualizing single tile (territory) on hex map. Territory needs to
@@ -14,7 +14,7 @@ export class MapTerritoryCmp extends Component {
 
     private cursor = this.inject(Cursor);
 
-    private territoryController = this.inject(TerritoryController);
+    private overhexController = this.inject(OverhexController);
 
     private territoryId?: number;
 
@@ -29,7 +29,7 @@ export class MapTerritoryCmp extends Component {
 
     public actions = {
         setTerritoryInfo: (territory: Territory): void => {
-            this.territoryController.renderTerritory(territory);
+            this.overhexController.renderTerritory(territory);
 
             this.updateStyle();
 
@@ -49,7 +49,7 @@ export class MapTerritoryCmp extends Component {
             if (this.active) {
                 this.hovered = true;
                 this.updateStyle();
-                this.cursor.setCursor(this, CursorType.Pointer);
+                this.cursor.setCursor(CursorType.Pointer);
             }
         });
 
@@ -57,7 +57,7 @@ export class MapTerritoryCmp extends Component {
             if (this.active) {
                 this.hovered = false;
                 this.updateStyle();
-                this.cursor.reset(this);
+                this.cursor.reset();
             }
         });
 

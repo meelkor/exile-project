@@ -1,18 +1,18 @@
 import { Component } from '@exile/client/engine/component/component';
 import { Territory } from '@exile/client/game/models/territory';
-import { MapTerritoryCmp } from '@exile/client/game/modules/overworld/partials/map-territory.cmp';
-import { TerritoryController } from '@exile/client/game/modules/overworld/partials/territory-controller';
+import { MapTerritoryCmp } from '@exile/client/game/modules/overworld/map/map-territory.cmp';
+import { OverhexController } from '@exile/client/game/modules/overworld/map/overhex/overhex-controller';
 import { ensure } from '@exile/common/utils/assert';
 
 export class MapCmp extends Component {
 
     private territories: Map<number, MapTerritoryCmp> = new Map;
 
-    private territoryController = this.inject(TerritoryController);
+    protected overhexController = this.inject(OverhexController);
 
     public actions = {
         setTerritories: (territories: Territory[]): void => {
-            this.territoryController.register(territories);
+            this.overhexController.register(territories);
 
             for (const territory of territories) {
                 const cmp = this.instantiate(MapTerritoryCmp);

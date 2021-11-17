@@ -22,8 +22,8 @@ root.provide(new ViewConfig({
     backbufferScale: 1,
 }));
 root.provide(new CameraConfig({
-    angle: Math.PI * 0.11,
-    fieldOfView: 40,
+    angle: Math.PI * 0.18,
+    fieldOfView: 35,
     height: 4.9,
 }));
 
