@@ -3,7 +3,7 @@ Merge SVG glyphs into ttf font with glyph mapped in TypeScript enum for use in
 typescript file.
 
 Usage:
-    svg-to-ttf -o out/directory
+    svg-to-ttf -o out/directory -n "Font Name" ...svg-files.svg
 `;
 
 import mkdirp from 'mkdirp';
@@ -13,6 +13,8 @@ import streamToString from 'stream-to-string';
 import SVGIcons2SVGFontStream from 'svgicons2svgfont';
 import { pascalCase } from 'change-case';
 import svg2ttf from 'svg2ttf';
+import svgOutlineStroke from 'svg-outline-stroke';
+import { Readable } from 'stream';
 import { cli, CliError } from '../cli';
 
 /**
@@ -52,14 +54,19 @@ cli(HELP, async argv => {
 
         glyphMap.set(enumName, unicode);
 
-        const fontFileStream = fs.createReadStream(fileFullPath);
+        const svgContent = await fs.promises.readFile(fileFullPath, { encoding: "utf-8" });
+        const outlinedSvg = await svgOutlineStroke(svgContent);
+        const iconStream = new Readable();
 
-        (fontFileStream as any).metadata = {
+        iconStream.push(outlinedSvg);
+        iconStream.push(null);
+
+        (iconStream as any).metadata = {
             unicode: [unicode],
             name: filename,
         };
 
-        svgFontStream.write(fontFileStream);
+        svgFontStream.write(iconStream);
     }
 
     svgFontStream.end();
