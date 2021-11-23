@@ -1,7 +1,7 @@
 /**
  * Combination of hashmap and array. Allows accessing last element via push and
- * pop methods while also allowing finding items via key of any type. Item is
- * still O(N) though.
+ * pop methods while also allowing finding items via key of any type. Element
+ * removal is still O(N) though.
  */
 export class MappedStack<TKey, TValue> implements Iterable<TValue> {
 
