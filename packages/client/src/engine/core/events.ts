@@ -80,7 +80,11 @@ export abstract class Events<TEvent extends SupportedEventType, TPayloads extend
 
         assert(handlers?.length, 'Cannot emit event for node without handlers');
 
-        return handlers.map(({ handler }) => handler(payload, this));
+        GlobalTreeNode.set(node);
+        const returnVals = handlers.map(({ handler }) => handler(payload, this));
+        GlobalTreeNode.clear(node);
+
+        return returnVals;
     }
 }
 
