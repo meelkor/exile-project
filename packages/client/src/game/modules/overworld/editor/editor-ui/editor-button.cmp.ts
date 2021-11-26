@@ -1,13 +1,13 @@
 import * as three from 'three';
+import { Text } from 'troika-three-text';
 import { Component } from '@exile/client/engine/component/component';
 import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
-import { UiPlane } from '@exile/client/engine/renderer-gl/planes/ui-plane';
-import { NodeText } from '@exile/client/engine/renderer-gl/text';
 import iconFont from '@exile/client/resources/fonts/icons/font.ttf';
 import { Pos } from '@exile/common/types/geometry';
 import { ButtonViewEvent, ViewEventType } from '@exile/client/engine/input/view-event-type';
 import { Cursor, CursorType } from '@exile/client/engine/view/cursor';
 import { assert } from '@exile/common/utils/assert';
+import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
 
 /**
  * Naive implementation of button without any optimalization, should be only
@@ -17,8 +17,6 @@ import { assert } from '@exile/common/utils/assert';
 export class EditorButtonCmp extends Component {
 
     private static bgGeometry = new three.PlaneBufferGeometry(32, 32);
-
-    private plane = this.inject(UiPlane);
 
     private cursor = this.inject(Cursor);
 
@@ -37,7 +35,7 @@ export class EditorButtonCmp extends Component {
     private needsUpdate: boolean = false;
 
     private bgMesh?: NodeMesh<three.BufferGeometry, three.MeshBasicMaterial>;
-    private iconMesh?: NodeText;
+    private iconMesh?: Text;
 
     public readonly actions = {};
 
@@ -55,26 +53,26 @@ export class EditorButtonCmp extends Component {
             new three.MeshBasicMaterial(),
             true,
         );
-        this.iconMesh = new NodeText();
+        this.iconMesh = new Text();
 
         this.applyOptions();
 
-        this.plane.scene.add(this.bgMesh);
-        this.plane.scene.add(this.iconMesh);
+        this.io.add(PlaneName.Ui, this.bgMesh);
+        this.io.add(PlaneName.Ui, this.iconMesh);
 
-        this.viewEvents.on(ViewEventType.Click, (e) => {
+        this.io.onInput(ViewEventType.Click, (e) => {
             this.options.onClick(e);
             return true;
         });
 
-        this.viewEvents.on(ViewEventType.MouseIn, () => {
+        this.io.onInput(ViewEventType.MouseIn, () => {
             this.hovered = true;
             this.needsUpdate = true;
             this.cursor.setCursor(CursorType.Pointer);
             return true;
         });
 
-        this.viewEvents.on(ViewEventType.MouseOut, () => {
+        this.io.onInput(ViewEventType.MouseOut, () => {
             this.hovered = false;
             this.needsUpdate = true;
             this.cursor.reset();

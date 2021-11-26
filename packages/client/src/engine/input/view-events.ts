@@ -1,28 +1,32 @@
-import { CursorEvent, CursorEventType, InputObserver } from '@exile/client/engine/input/input-observer';
-import { Events } from '@exile/client/engine/core/events';
-import { ViewEventMap, ViewEventType } from '@exile/client/engine/input/view-event-type';
+import * as three from 'three';
+import { ListMap } from '@exile/common/structures/list-map';
+import { InjectableGlobal } from '@exile/common/utils/di';
+import { ViewEventListener, ViewEventMap, ViewEventType } from '@exile/client/engine/input/view-event-type';
 import { Renderer } from '@exile/client/engine/renderer-gl/renderer';
-import { ComponentRegistry } from '@exile/client/engine/component/component-registry';
-import { Pos } from '@exile/common/types/geometry';
+import { CursorEvent, CursorEventType, InputObserver } from '@exile/client/engine/input/input-observer';
+import { ViewEventHandler } from '@exile/client/engine/input/view-event-handler';
+import { ViewObjectQuery } from '@exile/client/engine/input/view-object-query';
 import { NodeIntersection } from '@exile/client/engine/renderer-gl/internal/intersection';
+import { Pos } from '@exile/common/types/geometry';
+import { MeshLike } from '@exile/common/types/mesh-like';
+
+const HANDLERS_KEY = Symbol();
 
 /**
- * Service finding components that should handle given raw view events and
- * triggering their event handlers, which may then emit game events.
+ * View event service for detecting input events on meshes by storing handlers
+ * directly to the meshes objects. For that to work, applyToObject needs to be
+ * called on every mesh in scene.
  */
-export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | void> {
-
-    public static emitEvents(viewEvents: ViewEvents): void {
-        viewEvents.emitEvents();
-    }
+export class ViewEvents extends InjectableGlobal {
 
     private inputObserver = this.inject(InputObserver);
     private renderer = this.inject(Renderer);
-    private componentRegistry = this.inject(ComponentRegistry);
 
-    private hoveredNodes: Set<number> = new Set();
+    private handlers: ListMap<number, ViewEventHandler> = new ListMap();
 
-    private emitEvents(): void {
+    private hoveredMeshes: Set<three.Mesh> = new Set();
+
+    public emitEvents(): void {
         for (const e of this.inputObserver.getEvents()) {
             this.translateAndEmit(e);
         }
@@ -49,9 +53,9 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
             // TODO: mouseout needs to be also called on those that are BOTH
             //  but under the one, that blocked mousemove
             for (const int of grouped.aOnly) {
-                this.hoveredNodes.delete(int.nodeId);
+                this.hoveredMeshes.delete(int.mesh);
 
-                stopInAndMove = this.emitIfListens(int.nodeId, ViewEventType.MouseOut, null);
+                stopInAndMove = this.emit(int.mesh, ViewEventType.MouseOut, null);
 
                 if (stopInAndMove) {
                     break;
@@ -63,16 +67,16 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
              * became unhovered without proper DOM event happened (probably
              * changed location on frame.)
              */
-            const zombieNodes = new Set(this.hoveredNodes);
+            const zombieNodes = new Set(this.hoveredMeshes);
 
             if (!stopInAndMove) {
                 for (const [intFrom, intTo] of grouped.both) {
-                    stopInAndMove = this.emitIfListens(intFrom.nodeId, ViewEventType.MouseMove, {
+                    stopInAndMove = this.emit(intFrom.mesh, ViewEventType.MouseMove, {
                         from: intFrom.position,
                         to: intTo.position,
                     });
 
-                    zombieNodes.delete(intFrom.nodeId);
+                    zombieNodes.delete(intFrom.mesh);
 
                     if (stopInAndMove) {
                         break;
@@ -81,17 +85,17 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
             }
 
             for (const int of grouped.bOnly) {
-                this.hoveredNodes.add(int.nodeId);
-                zombieNodes.delete(int.nodeId);
+                this.hoveredMeshes.add(int.mesh);
+                zombieNodes.delete(int.mesh);
 
-                if (this.emitIfListens(int.nodeId, ViewEventType.MouseIn, null)) {
+                if (this.emit(int.mesh, ViewEventType.MouseIn, null)) {
                     break;
                 }
             }
 
             for (const zombieNode of zombieNodes) {
                 // In zombie cases the event can't stop propagation
-                this.emitIfListens(zombieNode, ViewEventType.MouseOut, null);
+                this.emit(zombieNode, ViewEventType.MouseOut, null);
             }
         } else if (e.type === CursorEventType.Down || e.type === CursorEventType.Up) {
             const ints = this.renderer.project(e.pos);
@@ -107,7 +111,7 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
                     },
                 };
 
-                if (this.emitIfListens(int.nodeId, viewEventType, payload)) {
+                if (this.emit(int.mesh, viewEventType, payload)) {
                     break;
                 }
             }
@@ -122,17 +126,17 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
                     },
                 };
 
-                if (this.emitIfListens(int.nodeId, ViewEventType.Click, payload)) {
+                if (this.emit(int.mesh, ViewEventType.Click, payload)) {
                     break;
                 }
             }
         } else if (e.type === CursorEventType.Leave) {
             for (const int of this.renderer.project(e.lastPos)) {
-                this.emitIfListens(int.nodeId, ViewEventType.MouseOut, null);
+                this.emit(int.mesh, ViewEventType.MouseOut, null);
             }
         } else if (e.type === CursorEventType.Wheel) {
             for (const int of this.renderer.project(e.pos)) {
-                this.emitIfListens(int.nodeId, ViewEventType.Wheel, {
+                this.emit(int.mesh, ViewEventType.Wheel, {
                     delta: e.delta,
                     pos: {
                         x: int.position.x,
@@ -143,19 +147,71 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
         }
     }
 
+    public on<T extends ViewEventType>(ownerNode: number, event: T, query: ViewObjectQuery, handler: ViewEventListener<T>): void {
+        const eventHandler = new ViewEventHandler(ownerNode, event, query, handler);
+
+        // https://github.com/microsoft/TypeScript/issues/29528
+        this.handlers.add(ownerNode, eventHandler as any);
+        this.applyToAll(eventHandler as any);
+    }
+
+    public offNode(_ownerNode: number): void {
+        // todo
+    }
+
     /**
-     * Return boolean if event emitted and at least one handler returned true.
+     * Each mesh needs to be registered to work
      */
-    private emitIfListens<TEvent extends ViewEventType>(nodeId: number, event: TEvent, payload: ViewEventMap[TEvent]): boolean {
-        const component = this.componentRegistry.get(nodeId);
+    public registerMesh(mesh: MeshLike): void {
+        const registered = Object.assign(mesh, {
+            [HANDLERS_KEY]: {
+                [ViewEventType.Click]: [],
+                [ViewEventType.MouseDown]: [],
+                [ViewEventType.MouseUp]: [],
+                [ViewEventType.MouseMove]: [],
+                [ViewEventType.MouseOut]: [],
+                [ViewEventType.MouseIn]: [],
+                [ViewEventType.Wheel]: [],
+            },
+            tags: mesh.userData.tags || new Set(),
+        }) as RegisteredMesh;
 
-        // Were not removed by the from loop: MouseIn
-        if (this.nodeListensOnEvent(component, event)) {
-            const results = this.emitForNode(component, event, payload);
+        this.applyAllToMesh(registered);
+    }
 
-            return results.some(r => r);
-        } else {
-            return false;
+    /**
+     * Go through all objects and register given handler if applicable
+     */
+    private applyToAll(handler: ViewEventHandler): void {
+        for (const mesh of this.getAllRegisteredMeshes()) {
+            this.applyHandler(handler, mesh);
+        }
+    }
+
+    private getAllRegisteredMeshes(): RegisteredMesh[] {
+        return this.renderer.getAllObjects()
+            .filter<RegisteredMesh>(isRegisteredMesh);
+    }
+
+    private applyAllToMesh(mesh: RegisteredMesh): void {
+        for (const handler of this.handlers.allValues()) {
+            this.applyHandler(handler, mesh);
+        }
+    }
+
+    /**
+     * Apply handler on the mesh if applicable
+     */
+    private applyHandler(handler: ViewEventHandler, mesh: RegisteredMesh): void {
+        const q = handler.query;
+
+        const ok = (q.meshId === undefined || q.meshId === mesh.id)
+            && (q.treeNode === undefined || q.treeNode === mesh.userData.nodeId)
+            && (!q.tags || q.tags.every(t => mesh.tags.has(t)));
+
+        if (ok) {
+            mesh[HANDLERS_KEY][handler.event].push(handler.callback);
+            mesh.userData.interactive = true;
         }
     }
 
@@ -169,7 +225,7 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
         const aInts = this.renderer.project(a);
         const bInts = this.renderer.project(b);
 
-        const bIntMap = new Map(bInts.map(int => [int.nodeId, int]));
+        const bIntMap = new Map(bInts.map(int => [int.mesh.id, int]));
 
         const out: GroupedIntersections = {
             aOnly: [],
@@ -178,14 +234,14 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
         };
 
         for (const int of aInts) {
-            if (bIntMap.has(int.nodeId)) {
-                if (this.hoveredNodes.has(int.nodeId)) {
-                    out.both.push([int, bIntMap.get(int.nodeId)!]);
+            if (bIntMap.has(int.mesh.id)) {
+                if (this.hoveredMeshes.has(int.mesh)) {
+                    out.both.push([int, bIntMap.get(int.mesh.id)!]);
                 } else {
                     out.bOnly.push(int);
                 }
 
-                bIntMap.delete(int.nodeId);
+                bIntMap.delete(int.mesh.id);
             } else {
                 out.aOnly.push(int);
             }
@@ -197,6 +253,29 @@ export class ViewEvents extends Events<ViewEventType, ViewEventMap, boolean | vo
 
         return out;
     }
+
+    private emit<T extends ViewEventType>(mesh: three.Mesh, event: T, payload: ViewEventMap[T]): boolean {
+        if (isRegisteredMesh(mesh)) {
+            let stop = false;
+
+            for (const cb of mesh[HANDLERS_KEY][event]) {
+                stop = !!cb(payload);
+            }
+
+            return stop;
+        } else {
+            return false;
+        }
+    }
+}
+
+function isRegisteredMesh(v: three.Object3D): v is RegisteredMesh {
+    return HANDLERS_KEY in v;
+}
+
+type RegisteredMesh = MeshLike & {
+    [HANDLERS_KEY]: Record<ViewEventType, ViewEventListener[]>;
+    tags: Set<number>;
 }
 
 interface GroupedIntersections {
@@ -204,3 +283,4 @@ interface GroupedIntersections {
     bOnly: NodeIntersection[];
     both: [NodeIntersection, NodeIntersection][];
 }
+

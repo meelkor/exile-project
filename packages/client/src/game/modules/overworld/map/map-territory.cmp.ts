@@ -14,7 +14,7 @@ export class MapTerritoryCmp extends Component {
 
     private cursor = this.inject(Cursor);
 
-    private overhexController = this.inject(OverhexController);
+    private overhexController = this.provide(OverhexController);
 
     private territoryId?: number;
 
@@ -45,7 +45,7 @@ export class MapTerritoryCmp extends Component {
     }
 
     protected onInit(): void {
-        this.viewEvents.on(ViewEventType.MouseIn, () => {
+        this.io.onInput(ViewEventType.MouseIn, () => {
             if (this.active) {
                 this.hovered = true;
                 this.updateStyle();
@@ -53,7 +53,7 @@ export class MapTerritoryCmp extends Component {
             }
         });
 
-        this.viewEvents.on(ViewEventType.MouseOut, () => {
+        this.io.onInput(ViewEventType.MouseOut, () => {
             if (this.active) {
                 this.hovered = false;
                 this.updateStyle();
@@ -61,7 +61,7 @@ export class MapTerritoryCmp extends Component {
             }
         });
 
-        this.viewEvents.on(ViewEventType.Click, () => {
+        this.io.onInput(ViewEventType.Click, () => {
             assert(this.territoryId, 'Territory has no ID');
 
             if (this.active) {

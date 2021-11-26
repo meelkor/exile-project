@@ -15,6 +15,14 @@ export abstract class Injectable extends InjectableBase {
         that.injector.substitute(Class, Sub);
     }
 
+    /**
+     * Method to get the private injector, should be ideally only ever used by
+     * core / engine classes.
+     */
+    public static getInjector(that: Injectable): Injector {
+        return that.injector;
+    }
+
     private injector: Injector;
 
     constructor(parentOnly: boolean = false) {

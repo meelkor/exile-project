@@ -3,6 +3,7 @@ import { UiPlane } from '@exile/client/engine/renderer-gl/planes/ui-plane';
 import dialogBgUrl from '@exile/client/resources/textures/ui/panel-bg.png';
 import * as three from 'three';
 import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
+import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
 
 export class AdvUiCmp extends Component {
 
@@ -40,7 +41,7 @@ export class AdvUiCmp extends Component {
             1,
         );
 
-        this.uiPlane.scene.add(mesh);
+        this.io.add(PlaneName.Ui, mesh);
     }
 
     protected override onDestroy(): void {

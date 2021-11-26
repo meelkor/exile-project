@@ -13,6 +13,10 @@ export class NodeMesh<
 
     public override readonly userData: MeshUserData;
 
+    public readonly isNodeMesh: true = true;
+
+    public readonly tags: Set<number> = new Set();
+
     constructor(
         geometry?: TGeometry,
         material?: TMaterial,

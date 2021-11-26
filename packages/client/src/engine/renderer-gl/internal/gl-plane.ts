@@ -23,14 +23,15 @@ export abstract class GlPlane extends InjectableGlobal {
             x: pos.x / this.gl.extent.width * 2 - 1,
             y: pos.y / this.gl.extent.height * -2 + 1,
         };
+        const meshes = this.scene.children.filter(obj => (obj as three.Mesh).isMesh) as three.Mesh[];
 
         this.raycaster.setFromCamera(normalizedPos, this.camera);
-        const intersections = this.raycaster.intersectObjects(this.scene.children);
+        const intersections = this.raycaster.intersectObjects(meshes);
 
         return intersections
             .filter(int => int.object.userData.interactive)
             .map(int => ({
-                nodeId: int.object.userData.nodeId as number,
+                mesh: int.object as three.Mesh,
                 position: {
                     x: int.point.x,
                     y: int.point.y,

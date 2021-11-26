@@ -1,7 +1,7 @@
 declare module 'troika-three-text' {
     import * as three from 'three';
 
-    export class Text extends three.Object3D {
+    export class Text extends three.Mesh {
 
         /**
          * The string of text to be rendered.

@@ -2,8 +2,9 @@ import { UiPlane } from '@exile/client/engine/renderer-gl/planes/ui-plane';
 import { DialogFeature } from '@exile/client/game/modules/dialogs/dialog-feature';
 import { assert } from '@exile/common/utils/assert';
 import * as three from 'three';
+import { Text } from 'troika-three-text';
 import felipa from '@exile/client/resources/fonts/felipa-regular.ttf';
-import { NodeText } from '@exile/client/engine/renderer-gl/text';
+import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
 
 export class DialogTitleCmp extends DialogFeature {
 
@@ -11,14 +12,14 @@ export class DialogTitleCmp extends DialogFeature {
 
     public actions = {};
 
-    private textMesh?: NodeText;
+    private textMesh?: Text;
 
     private uiPlane = this.inject(UiPlane);
 
     protected onInit(): void {
         assert(this.offset, 'No offset defined, was title provided as feature?');
 
-        this.textMesh = new NodeText();
+        this.textMesh = new Text();
 
         this.textMesh.text = this.text;
 
@@ -29,7 +30,7 @@ export class DialogTitleCmp extends DialogFeature {
         this.textMesh.font = felipa;
         this.textMesh.color = 0xE5CD7A;
 
-        this.uiPlane.scene.add(this.textMesh);
+        this.io.add(PlaneName.Ui, this.textMesh);
 
         const lineMaterial = new three.LineBasicMaterial({
             color: 0x514b32,
@@ -43,7 +44,7 @@ export class DialogTitleCmp extends DialogFeature {
 
         const line = new three.Line(lineGeometry, lineMaterial);
 
-        this.uiPlane.scene.add(line);
+        this.io.add(PlaneName.Ui, line);
 
         this.textMesh.sync();
     }

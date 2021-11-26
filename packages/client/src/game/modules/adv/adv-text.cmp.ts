@@ -1,15 +1,15 @@
+import { Text } from 'troika-three-text';
 import { Component } from '@exile/client/engine/component/component';
 import { UiPlane } from '@exile/client/engine/renderer-gl/planes/ui-plane';
-
 import ptserif from '@exile/client/resources/fonts/ptserif-regular.ttf';
 import { assert } from '@exile/common/utils/assert';
 import { ViewEventType } from '@exile/client/engine/input/view-event-type';
-import { NodeText } from '@exile/client/engine/renderer-gl/text';
 import { enableTextLength, setTextLength } from '@exile/client/engine/renderer-gl/extensions/text-length';
+import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
 
 export class AdvTextCmp extends Component {
 
-    private textMesh: NodeText;
+    private textMesh: Text;
 
     private uiPlane = this.inject(UiPlane);
 
@@ -32,7 +32,7 @@ export class AdvTextCmp extends Component {
 
         const width = this.uiPlane.getWidth('100%') - 2 * this.uiPlane.getWidth(this.margin);
 
-        this.textMesh = new NodeText({ interactive: true });
+        this.textMesh = new Text();
 
         enableTextLength(this.textMesh);
 
@@ -50,11 +50,11 @@ export class AdvTextCmp extends Component {
     protected onInit(): void {
         this.updateText('Some very long and important text, Some very long and important text, Some very long and important text, Some very long and important text, Some very long and important text, Some very long and important text, Some very long and important text, Some very long and important text, Some very long and important text, Some very long and important text,');
 
-        this.viewEvents.on(ViewEventType.Click, () => {
+        this.io.onInput(ViewEventType.Click, () => {
             this.updateText('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
         });
 
-        this.uiPlane.scene.add(this.textMesh);
+        this.io.add(PlaneName.Ui, this.textMesh);
 
         this.textMesh.sync(() => this.drawing = true);
     }

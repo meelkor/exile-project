@@ -50,9 +50,7 @@ export class Injector implements CompatibleInjector {
         if (this.registry.has(Class)) {
             return this.registry.get(Class) as T;
         } else if (this.parent) {
-            return InjectableValue.isConstructor(Class)
-                ? this.parent.inject(Class)
-                : this.parent.inject(Class);
+            return this.parent.inject(Class);
         } else if (isGlobalInjectable(Class)) {
             // No way to assert it's not abstract
             return this.provide(Class as Constructor<I>);

@@ -8,7 +8,7 @@ export class MapCmp extends Component {
 
     private territories: Map<number, MapTerritoryCmp> = new Map;
 
-    protected overhexController = this.inject(OverhexController);
+    protected overhexController = this.provide(OverhexController);
 
     public actions = {
         setTerritories: (territories: Territory[]): void => {

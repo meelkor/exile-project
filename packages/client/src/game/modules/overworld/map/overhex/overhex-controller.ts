@@ -4,8 +4,10 @@ import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
 import { WorldPlane } from '@exile/client/engine/renderer-gl/planes/world-plane';
 import { TerritoryArranger } from '@exile/client/game/modules/overworld/map/territory-arranger';
 import { OverhexStyle } from '@exile/client/game/modules/overworld/map/overhex/overhex-style';
-import { InjectableGlobal } from '@exile/common/utils/di';
+import { Injectable } from '@exile/common/utils/di';
 import { OverhexObject, OverhexObjectType } from '@exile/client/game/modules/overworld/map/overhex/overhex-object';
+import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
+import { ComponentIo } from '@exile/client/engine/component/componentIo';
 
 /**
  * Controller to be used by map components for parsing map chunks and creating
@@ -13,12 +15,14 @@ import { OverhexObject, OverhexObjectType } from '@exile/client/game/modules/ove
  * 3D objects, its method should be only called from scene/component lifecycle
  * methods.
  */
-export class OverhexController extends InjectableGlobal {
+export class OverhexController extends Injectable {
 
     private territoryArranger = this.inject(TerritoryArranger);
     private overhexStyle = this.inject(OverhexStyle);
 
     private plane = this.inject(WorldPlane);
+
+    private io = this.inject(ComponentIo);
 
     public register(_territories: Territory[]): void {
         const sun = new three.PointLight('#ffffff', 0.5, 100);
@@ -46,8 +50,8 @@ export class OverhexController extends InjectableGlobal {
         mesh.position.copy(vector);
         line.position.copy(vector);
 
-        this.plane.scene.add(mesh);
-        this.plane.scene.add(line);
+        this.io.add(PlaneName.World, mesh);
+        this.io.add(PlaneName.World, line);
     }
 
     public renderStandaloneObject(obj: OverhexObject): void {
@@ -68,6 +72,6 @@ export class OverhexController extends InjectableGlobal {
         mesh.scale.set(sizeScale, sizeScale, heightScale);
         mesh.position.set(obj.pos.x, obj.pos.y, 0);
 
-        this.plane.scene.add(mesh);
+        this.io.add(PlaneName.World, mesh);
     }
 }

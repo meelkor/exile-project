@@ -10,7 +10,7 @@ export enum ViewEventType {
     Wheel,
 }
 
-export type ViewEventListener<K extends ViewEventType> = (e: ViewEventMap[K]) => boolean;
+export type ViewEventListener<K extends ViewEventType = ViewEventType> = (e: ViewEventMap[K]) => boolean | void;
 
 export interface ViewEventMap extends Record<ViewEventType, unknown> {
     [ViewEventType.MouseMove]: MouseMoveViewEvent;

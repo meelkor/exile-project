@@ -29,7 +29,7 @@ export class EventLoop extends InjectableGlobal {
     private executeFrame(hrt: number): void {
         // Get player's input and propagate it into components, so they either
         // change their internal state or emit game event
-        ViewEvents.emitEvents(this.viewEvents);
+        this.viewEvents.emitEvents();
 
         // Emit game events caused by backend messages that arrived before this
         // frame

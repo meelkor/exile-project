@@ -1,6 +1,5 @@
 import * as three from 'three';
 import { Component } from '@exile/client/engine/component/component';
-import { WorldPlane } from '@exile/client/engine/renderer-gl/planes/world-plane';
 import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
 import { OverhexStyle } from '@exile/client/game/modules/overworld/map/overhex/overhex-style';
 import { ButtonViewEvent, ViewEventType } from '@exile/client/engine/input/view-event-type';
@@ -12,13 +11,13 @@ import { UiPlane } from '@exile/client/engine/renderer-gl/planes/ui-plane';
 import { Glyph } from '@exile/client/resources/fonts/icons';
 import { EditorButtonBarCmp } from '@exile/client/game/modules/overworld/editor/editor-ui/editor-button-bar.cmp';
 import { editorToolUuid, MapEditorTool, MapEditorToolType as MapEditorToolName } from '@exile/client/game/modules/overworld/editor/map-editor-tool';
+import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
 
 /**
  * Component displaying overlay for editing overhex-style maps
  */
 export class MapEditorCmp extends Component {
 
-    private worldPlane = this.inject(WorldPlane);
     private uiPlane = this.inject(UiPlane);
 
     private overhexStyle = this.inject(OverhexStyle);
@@ -97,9 +96,9 @@ export class MapEditorCmp extends Component {
         mesh.visible = false;
         mesh.position.set(0, 0, this.overhexStyle.territoryHeight / 2 + 0.001);
 
-        this.worldPlane.scene.add(mesh);
+        this.io.add(PlaneName.World, mesh);
 
-        this.viewEvents.on(ViewEventType.Click, this.handleClick);
+        this.io.onInput(ViewEventType.Click, this.handleClick);
         this.state.on(MapEditorEvent.ToolChanged, this.updateActiveTool);
     }
 

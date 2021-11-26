@@ -9,6 +9,7 @@ import { Pos } from '@exile/common/types/geometry';
 import { ViewEventType } from '@exile/client/engine/input/view-event-type';
 import dialogBgUrl from '@exile/client/resources/textures/ui/panel-bg.png';
 import borderAlphaUrl from '@exile/client/resources/textures/ui/panel-border-alpha.png';
+import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
 
 export class DialogCmp extends Component {
 
@@ -86,10 +87,10 @@ export class DialogCmp extends Component {
             this.zIndex,
         );
 
-        this.uiPlane.scene.add(this.dialogMesh);
+        this.io.add(PlaneName.Ui, this.dialogMesh);
 
-        this.viewEvents.on(ViewEventType.Click, () => true);
-        this.viewEvents.on(ViewEventType.MouseDown, () => true);
+        this.io.onInput(ViewEventType.Click, () => true);
+        this.io.onInput(ViewEventType.MouseDown, () => true);
     }
 
     protected override onDestroy(): void {
