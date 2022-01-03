@@ -96,6 +96,7 @@ export class ViewEvents extends InjectableGlobal {
             for (const zombieNode of zombieNodes) {
                 // In zombie cases the event can't stop propagation
                 this.emit(zombieNode, ViewEventType.MouseOut, null);
+                this.hoveredMeshes.delete(zombieNode);
             }
         } else if (e.type === CursorEventType.Down || e.type === CursorEventType.Up) {
             const ints = this.renderer.project(e.pos);
