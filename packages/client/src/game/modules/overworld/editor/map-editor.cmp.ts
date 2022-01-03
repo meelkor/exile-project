@@ -102,10 +102,26 @@ export class MapEditorCmp extends Component {
         this.io.onInput(ViewEventType.Click, this.handleClick);
         this.state.on(MapEditorEvent.ToolChanged, this.updateActiveTool);
 
+        let visibleEdges: three.LineSegments | undefined;
+
         this.io.queryInput(ViewEventType.MouseIn, {
             tags: [TAG_OVERHEX_OBJECT],
+        }, (e) => {
+            const edges = new three.EdgesGeometry(e.mesh.geometry);
+            const lineMat = new three.LineBasicMaterial({ color: 0xffffff });
+            lineMat.transparent = true;
+            visibleEdges = new three.LineSegments(edges, new three.LineBasicMaterial({ color: 0xffffff }));
+            visibleEdges.scale.copy(e.mesh.scale);
+            visibleEdges.position.copy(e.mesh.position);
+            this.io.add(PlaneName.World, visibleEdges);
+        });
+
+        this.io.queryInput(ViewEventType.MouseOut, {
+            tags: [TAG_OVERHEX_OBJECT],
         }, () => {
-            console.log("object hover!");
+            if (visibleEdges) {
+                this.io.remove(PlaneName.World, visibleEdges);
+            }
         });
     }
 

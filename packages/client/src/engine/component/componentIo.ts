@@ -45,6 +45,16 @@ export class ComponentIo extends Injectable {
         this.renderer.getScene(plane).add(mesh);
         this.viewEvents.registerMesh(mesh);
     }
+
+    /**
+     * Add given mesh into scene under given ID while handling all necessary
+     * registering with events etc.
+     */
+    public remove(plane: PlaneName, mesh: MeshLike): void {
+        this.renderer.getScene(plane).remove(mesh);
+        // todo
+        // this.viewEvents.deregisterMesh(mesh);
+    }
 }
 
 export type IoViewObjectQuery = ViewObjectQuery | (Omit<ViewObjectQuery, 'nodeId'> & {
