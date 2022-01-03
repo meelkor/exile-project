@@ -68,7 +68,10 @@ export class OverhexController extends Injectable {
 
         const mesh = new NodeMesh(this.overhexStyle.hillGeometry, material);
         const sizeScale = 1 - (Math.random() * 0.2 - 0.1);
-        const heightScale = 1 - (Math.random() * 1 - 0.5);
+        // todo: fix heightscale moving the geometry below territory because
+        //  scaling also scales its position. Put the z-position here into
+        //  mesh instead
+        const heightScale = 1 - Math.random() * 0.5;
 
         mesh.scale.set(sizeScale, sizeScale, heightScale);
         mesh.position.set(obj.pos.x, obj.pos.y, 0);
