@@ -29,7 +29,7 @@ export class Clock extends InjectableGlobal {
     private freeLoop = (hrt: DOMHighResTimeStamp): void => {
         this.handler!(hrt);
 
-        window.requestAnimationFrame(this.freeLoop);
+        setTimeout(() => window.requestAnimationFrame(this.freeLoop));
     }
 
     private fpsLoop = (hrt: DOMHighResTimeStamp): void => {
@@ -38,7 +38,7 @@ export class Clock extends InjectableGlobal {
             this.handler!(hrt);
         }
 
-        window.requestAnimationFrame(this.fpsLoop);
+        setTimeout(() => window.requestAnimationFrame(this.fpsLoop));
     }
 }
 
