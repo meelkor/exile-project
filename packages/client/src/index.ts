@@ -4,7 +4,7 @@ import { ViewConfig } from '@exile/client/engine/config/view-config';
 import { bootstrap } from '@exile/client/engine/scene/bootstrap';
 import { NoopServer } from '@exile/client/engine/server/noop-server';
 import { Server } from '@exile/client/engine/server/server';
-import { MainScene } from '@exile/client/game/main.scn';
+import { MainEditorScene } from '@exile/client/game/main-editor.scn';
 import { Injector } from '@exile/common/utils/di';
 
 const root = new Injector();
@@ -29,4 +29,4 @@ root.provide(new CameraConfig({
 
 root.provide(NoopServer, Server);
 
-bootstrap(root, MainScene);
+bootstrap(root, MainEditorScene);

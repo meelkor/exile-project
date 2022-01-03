@@ -12,6 +12,7 @@ import { Glyph } from '@exile/client/resources/fonts/icons';
 import { EditorButtonBarCmp } from '@exile/client/game/modules/overworld/editor/editor-ui/editor-button-bar.cmp';
 import { editorToolUuid, MapEditorTool, MapEditorToolType as MapEditorToolName } from '@exile/client/game/modules/overworld/editor/map-editor-tool';
 import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
+import { TAG_OVERHEX_OBJECT } from '@exile/client/game/modules/overworld/map/overhex/overhex-tags';
 
 /**
  * Component displaying overlay for editing overhex-style maps
@@ -100,6 +101,12 @@ export class MapEditorCmp extends Component {
 
         this.io.onInput(ViewEventType.Click, this.handleClick);
         this.state.on(MapEditorEvent.ToolChanged, this.updateActiveTool);
+
+        this.io.queryInput(ViewEventType.MouseIn, {
+            tags: [TAG_OVERHEX_OBJECT],
+        }, () => {
+            console.log("object hover!");
+        });
     }
 
     private updateActiveTool = (tool: MapEditorTool): void => {

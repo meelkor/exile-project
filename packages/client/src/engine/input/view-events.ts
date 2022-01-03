@@ -173,7 +173,6 @@ export class ViewEvents extends InjectableGlobal {
                 [ViewEventType.MouseIn]: [],
                 [ViewEventType.Wheel]: [],
             },
-            tags: mesh.userData.tags || new Set(),
         }) as RegisteredMesh;
 
         this.applyAllToMesh(registered);
@@ -207,7 +206,7 @@ export class ViewEvents extends InjectableGlobal {
 
         const ok = (q.meshId === undefined || q.meshId === mesh.id)
             && (q.treeNode === undefined || q.treeNode === mesh.userData.nodeId)
-            && (!q.tags || q.tags.every(t => mesh.tags.has(t)));
+            && (!q.tags || q.tags.every(t => mesh.tags && mesh.tags.has(t)));
 
         if (ok) {
             mesh[HANDLERS_KEY][handler.event].push(handler.callback);
@@ -275,7 +274,7 @@ function isRegisteredMesh(v: three.Object3D): v is RegisteredMesh {
 
 type RegisteredMesh = MeshLike & {
     [HANDLERS_KEY]: Record<ViewEventType, ViewEventListener[]>;
-    tags: Set<number>;
+    tags?: Set<number>;
 }
 
 interface GroupedIntersections {

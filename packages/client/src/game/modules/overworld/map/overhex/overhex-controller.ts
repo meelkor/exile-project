@@ -8,6 +8,7 @@ import { Injectable } from '@exile/common/utils/di';
 import { OverhexObject, OverhexObjectType } from '@exile/client/game/modules/overworld/map/overhex/overhex-object';
 import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
 import { ComponentIo } from '@exile/client/engine/component/componentIo';
+import { TAG_OVERHEX_OBJECT } from '@exile/client/game/modules/overworld/map/overhex/overhex-tags';
 
 /**
  * Controller to be used by map components for parsing map chunks and creating
@@ -71,6 +72,8 @@ export class OverhexController extends Injectable {
 
         mesh.scale.set(sizeScale, sizeScale, heightScale);
         mesh.position.set(obj.pos.x, obj.pos.y, 0);
+
+        mesh.tags.add(TAG_OVERHEX_OBJECT);
 
         this.io.add(PlaneName.World, mesh);
     }
