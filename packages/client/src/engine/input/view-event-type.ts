@@ -1,4 +1,5 @@
 import { Pos } from '@exile/common/types/geometry';
+import { MeshLike } from '@exile/common/types/mesh-like';
 
 export enum ViewEventType {
     MouseMove,
@@ -13,25 +14,30 @@ export enum ViewEventType {
 export type ViewEventListener<K extends ViewEventType = ViewEventType> = (e: ViewEventMap[K]) => boolean | void;
 
 export interface ViewEventMap extends Record<ViewEventType, unknown> {
-    [ViewEventType.MouseMove]: MouseMoveViewEvent;
-    [ViewEventType.MouseIn]: null;
-    [ViewEventType.MouseOut]: null;
-    [ViewEventType.Click]: ButtonViewEvent;
-    [ViewEventType.MouseDown]: ButtonViewEvent;
-    [ViewEventType.MouseUp]: ButtonViewEvent;
-    [ViewEventType.Wheel]: WheelViewEvent;
+    [ViewEventType.MouseMove]: ViewEvent<MouseMoveViewInfo>;
+    [ViewEventType.MouseIn]: ViewEvent<null>;
+    [ViewEventType.MouseOut]: ViewEvent<null>;
+    [ViewEventType.Click]: ViewEvent<ButtonViewInfo>;
+    [ViewEventType.MouseDown]: ViewEvent<ButtonViewInfo>;
+    [ViewEventType.MouseUp]: ViewEvent<ButtonViewInfo>;
+    [ViewEventType.Wheel]: ViewEvent<WheelViewInfo>;
 }
 
-export interface MouseMoveViewEvent {
+export interface ViewEvent<T> {
+    info: T;
+    mesh: MeshLike;
+}
+
+export interface MouseMoveViewInfo {
     from: Pos;
     to: Pos;
 }
 
-export interface ButtonViewEvent {
+export interface ButtonViewInfo {
     pos: Pos;
 }
 
-export interface WheelViewEvent {
+export interface WheelViewInfo {
     pos: Pos;
     delta: number;
 }

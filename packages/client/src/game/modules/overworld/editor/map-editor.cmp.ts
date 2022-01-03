@@ -2,7 +2,7 @@ import * as three from 'three';
 import { Component } from '@exile/client/engine/component/component';
 import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
 import { OverhexStyle } from '@exile/client/game/modules/overworld/map/overhex/overhex-style';
-import { ButtonViewEvent, ViewEventType } from '@exile/client/engine/input/view-event-type';
+import { ButtonViewInfo, ViewEvent, ViewEventType } from '@exile/client/engine/input/view-event-type';
 import { Store } from '@exile/client/engine/store/store';
 import { MapEditorEvent, MapEditorStateModule } from '@exile/client/game/modules/overworld/editor/map-editor-state-module';
 import { OverhexObjectType } from '@exile/client/game/modules/overworld/map/overhex/overhex-object';
@@ -113,12 +113,12 @@ export class MapEditorCmp extends Component {
         this.buttonBar.actions.setActive(editorToolUuid(tool));
     }
 
-    private handleClick = (ev: ButtonViewEvent): void => {
+    private handleClick = ({ info }: ViewEvent<ButtonViewInfo>): void => {
         const tool = this.state.getState().currentTool;
 
         if (tool.name === MapEditorToolName.Place) {
             this.state.addObject({
-                pos: ev.pos,
+                pos: info.pos,
                 type: tool.param,
             });
         }

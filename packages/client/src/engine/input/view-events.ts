@@ -253,12 +253,15 @@ export class ViewEvents extends InjectableGlobal {
         return out;
     }
 
-    private emit<T extends ViewEventType>(mesh: three.Mesh, event: T, payload: ViewEventMap[T]): boolean {
+    private emit<T extends ViewEventType>(mesh: three.Mesh, event: T, payload: ViewEventMap[T]['info']): boolean {
         if (isRegisteredMesh(mesh)) {
             let stop = false;
 
             for (const cb of mesh[HANDLERS_KEY][event]) {
-                stop = !!cb(payload);
+                stop = !!cb({
+                    mesh,
+                    info: payload,
+                });
             }
 
             return stop;

@@ -4,7 +4,7 @@ import { Component } from '@exile/client/engine/component/component';
 import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
 import iconFont from '@exile/client/resources/fonts/icons/font.ttf';
 import { Pos } from '@exile/common/types/geometry';
-import { ButtonViewEvent, ViewEventType } from '@exile/client/engine/input/view-event-type';
+import { ButtonViewInfo, ViewEventType } from '@exile/client/engine/input/view-event-type';
 import { Cursor, CursorType } from '@exile/client/engine/view/cursor';
 import { assert } from '@exile/common/utils/assert';
 import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
@@ -61,7 +61,7 @@ export class EditorButtonCmp extends Component {
         this.io.add(PlaneName.Ui, this.iconMesh);
 
         this.io.onInput(ViewEventType.Click, (e) => {
-            this.options.onClick(e);
+            this.options.onClick(e.info);
             return true;
         });
 
@@ -112,5 +112,5 @@ interface EditorButtonOptions {
     icon: string;
     position: Pos;
     active: boolean;
-    onClick: (e: ButtonViewEvent) => void,
+    onClick: (e: ButtonViewInfo) => void,
 }

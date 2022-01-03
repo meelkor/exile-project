@@ -41,12 +41,12 @@ export class CameraTrapCmp extends Component {
 
         this.io.onInput(ViewEventType.MouseMove, (e) => {
             if (this.moving) {
-                this.worldPlane.pan(e.from, e.to);
+                this.worldPlane.pan(e.info.from, e.info.to);
             }
         });
 
         this.io.onInput(ViewEventType.Wheel, (e) => {
-            const normalizedDelta = e.delta / 40;
+            const normalizedDelta = e.info.delta / 40;
             const baseZoomStep = 0.05;
             const plusDelta = 1 + Math.abs(normalizedDelta * baseZoomStep);
 
