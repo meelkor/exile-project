@@ -20,29 +20,28 @@ export class EditorButtonBarCmp extends Component {
 
     private activeButton: string | null = null;
 
-    public actions = {
-        addButton: (key: string, button: EditorButtonCmp): void => {
-            this.buttons.set(key, button);
+    public addButton(key: string, button: EditorButtonCmp): void {
+        this.buttons.set(key, button);
 
-            const offset = (this.buttons.size - 1) * 40;
+        const offset = (this.buttons.size - 1) * 40;
 
-            button.update({
-                position: {
-                    x: this.options.position.x + offset,
-                    y: this.options.position.y,
-                },
-            });
+        button.update({
+            position: {
+                x: this.options.position.x + offset,
+                y: this.options.position.y,
+            },
+        });
 
-            this.add(button);
-        },
-        setActive: (key: string): void => {
-            if (this.activeButton) {
-                this.buttons.get(this.activeButton)!.update({ active: false });
-            }
+        this.add(button);
+    }
 
-            this.buttons.get(key)!.update({ active: true });
-            this.activeButton = key;
-        },
+    public setActive(key: string): void {
+        if (this.activeButton) {
+            this.buttons.get(this.activeButton)!.update({ active: false });
+        }
+
+        this.buttons.get(key)!.update({ active: true });
+        this.activeButton = key;
     }
 
     public update(options: Partial<EditorButtonBarOptions>): void {

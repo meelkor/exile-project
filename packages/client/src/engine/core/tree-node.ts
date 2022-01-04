@@ -1,8 +1,7 @@
-import { GlobalTreeNode } from '@exile/client/engine/core/global-tree-node';
 import { assert } from '@exile/common/utils/assert';
 import { Injectable } from '@exile/common/utils/di';
 import { Counter } from '@exile/common/utils/counter';
-import { HookAfterConstructed, HookBeforeConstructed } from '@exile/common/utils/di/hooks';
+import { SignedHandler } from '@exile/client/engine/core/signed-handler';
 
 /**
  * Class representing a node in the game view tree which includes components,
@@ -12,12 +11,14 @@ import { HookAfterConstructed, HookBeforeConstructed } from '@exile/common/utils
  */
 export abstract class TreeNode<TChild extends TreeNode<any> = TreeNode<any>> extends Injectable {
 
-    public abstract actions: Record<string, (...args: any[]) => any>;
+    protected children: Set<TChild> = new Set();
 
     /**
      * Human readable name used for debugging
      */
     private static _name: string = 'TreeNode';
+
+    private readonly instanceId: number = Counter.make();
 
     public static getId(node: TreeNode): number {
         return node.instanceId;
@@ -29,12 +30,8 @@ export abstract class TreeNode<TChild extends TreeNode<any> = TreeNode<any>> ext
     }
 
     public static runTick(node: TreeNode, hrt: number): void {
-        GlobalTreeNode.set(node);
         node.tick(hrt);
-        GlobalTreeNode.clear(node);
     }
-
-    protected children: Set<TChild> = new Set();
 
     protected abstract onDestroy(): void;
 
@@ -42,23 +39,25 @@ export abstract class TreeNode<TChild extends TreeNode<any> = TreeNode<any>> ext
 
     protected abstract onTick(hrt: number): void;
 
-    private readonly instanceId: number = Counter.make();
+    /**
+     * Sign function so it can be passed as handler
+     */
+    protected sign<T extends Function>(method: T): SignedHandler<T> {
+        return {
+            handler: method,
+            nodeId: this.instanceId,
+        };
+    }
 
     protected add(child: TChild): void {
         assert(!this.children.has(child), `Node of type ${TreeNode.getName(child)} is already a child of node of type ${TreeNode.getName(this)}`);
 
-        GlobalTreeNode.set(child);
-
         this.children.add(child);
         child.onAdd();
-
-        GlobalTreeNode.clear(child);
     }
 
     protected destroy(child: TChild): void {
         assert(this.children.has(child), `Node of type ${TreeNode.getName(child)} is not a child of node of type ${TreeNode.getName(this)}`);
-
-        GlobalTreeNode.set(child);
 
         for (const childChild of child.children) {
             child.destroy(childChild);
@@ -66,33 +65,6 @@ export abstract class TreeNode<TChild extends TreeNode<any> = TreeNode<any>> ext
 
         child.onDestroy();
         this.children.delete(child);
-
-        GlobalTreeNode.clear(child);
-    }
-
-    protected override [HookBeforeConstructed](): void {
-        GlobalTreeNode.set(this);
-    }
-
-    protected override [HookAfterConstructed](): void {
-        GlobalTreeNode.clear(this);
-
-        for (const [key, fn] of Object.entries(this.actions)) {
-            this.actions[key] = this.action(fn);
-        }
-    }
-
-    /**
-     * Mark given function as an action and make it a part of the node's
-     * lifecycle.
-     */
-    private action<T extends (...args: any[]) => any>(fn: T): T {
-        return ((...args: Parameters<T>): ReturnType<T> => {
-            GlobalTreeNode.set(this);
-            const rv = fn(...args);
-            GlobalTreeNode.clear(this);
-            return rv;
-        }) as any as T;
     }
 
     private tick(hrt: number): void {

@@ -3,8 +3,6 @@ import { Store } from '@exile/client/engine/store/store';
 
 export abstract class Scene extends TreeNode {
 
-    public actions = {};
-
     protected store = this.inject(Store);
 
     protected onTick(): void {
@@ -12,6 +10,6 @@ export abstract class Scene extends TreeNode {
     }
 
     protected onDestroy(): void {
-        this.store.offNode(this);
+        this.store.offNode(TreeNode.getId(this));
     }
 }

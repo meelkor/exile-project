@@ -2,12 +2,9 @@ import { Component } from '@exile/client/engine/component/component';
 import { UiPlane } from '@exile/client/engine/renderer-gl/planes/ui-plane';
 import dialogBgUrl from '@exile/client/resources/textures/ui/panel-bg.png';
 import * as three from 'three';
-import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
 import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
 
 export class AdvUiCmp extends Component {
-
-    public actions = {};
 
     private uiPlane = this.inject(UiPlane);
 
@@ -33,7 +30,7 @@ export class AdvUiCmp extends Component {
             transparent: true,
         });
 
-        const mesh = new NodeMesh(plane, material, true);
+        const mesh = new three.Mesh(plane, material);
 
         mesh.position.set(
             width / 2,

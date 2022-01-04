@@ -15,8 +15,6 @@ describe('Component', function () {
 
         class TestComponent extends Component {
 
-            public actions = {};
-
             public test(): void {
 
                 this.inject(ChildController).assertInjectedIo(this.io);

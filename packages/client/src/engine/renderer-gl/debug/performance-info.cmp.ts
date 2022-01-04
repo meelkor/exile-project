@@ -7,8 +7,6 @@ export class PerformanceInfo extends Component {
 
     private valueElements: Record<string, HTMLElement> = {};
 
-    public actions = {};
-
     public onInit(): void {
         const cont = document.createElement('div');
 

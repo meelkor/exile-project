@@ -1,6 +1,5 @@
 import * as three from 'three';
 import { Territory } from '@exile/client/game/models/territory';
-import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
 import { WorldPlane } from '@exile/client/engine/renderer-gl/planes/world-plane';
 import { TerritoryArranger } from '@exile/client/game/modules/overworld/map/territory-arranger';
 import { OverhexStyle } from '@exile/client/game/modules/overworld/map/overhex/overhex-style';
@@ -9,6 +8,7 @@ import { OverhexObject, OverhexObjectType } from '@exile/client/game/modules/ove
 import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
 import { ComponentIo } from '@exile/client/engine/component/componentIo';
 import { TAG_OVERHEX_OBJECT } from '@exile/client/game/modules/overworld/map/overhex/overhex-tags';
+import { addMeshTag } from '@exile/client/engine/renderer-gl/tags';
 
 /**
  * Controller to be used by map components for parsing map chunks and creating
@@ -45,7 +45,7 @@ export class OverhexController extends Injectable {
 
         const vector = this.territoryArranger.getTerritoryVector(territory);
 
-        const mesh = new NodeMesh(this.overhexStyle.territoryGeometry, material);
+        const mesh = new three.Mesh(this.overhexStyle.territoryGeometry, material);
         const line = new three.Line(this.overhexStyle.lineGeometry, lineMaterial);
 
         mesh.position.copy(vector);
@@ -66,7 +66,7 @@ export class OverhexController extends Injectable {
             color: '#807772',
         });
 
-        const mesh = new NodeMesh(this.overhexStyle.hillGeometry, material);
+        const mesh = new three.Mesh(this.overhexStyle.hillGeometry, material);
         const sizeScale = 1 - (Math.random() * 0.2 - 0.1);
         // todo: fix heightscale moving the geometry below territory because
         //  scaling also scales its position. Put the z-position here into
@@ -76,7 +76,9 @@ export class OverhexController extends Injectable {
         mesh.scale.set(sizeScale, sizeScale, heightScale);
         mesh.position.set(obj.pos.x, obj.pos.y, 0);
 
-        mesh.tags.add(TAG_OVERHEX_OBJECT);
+        addMeshTag(mesh, TAG_OVERHEX_OBJECT);
+
+        mesh.userData.objectId = obj.id;
 
         this.io.add(PlaneName.World, mesh);
     }

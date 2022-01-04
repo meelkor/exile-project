@@ -1,6 +1,6 @@
 import { Component } from '@exile/client/engine/component/component';
 import { ClaimState, Territory } from '@exile/client/game/models/territory';
-import { Cursor, CursorType } from '@exile/client/engine/view/cursor';
+import { CursorType } from '@exile/client/engine/view/cursor';
 import { ViewEventType } from '@exile/client/engine/input/view-event-type';
 import { assert } from '@exile/common/utils/assert';
 import { OverworldEvents } from '@exile/client/game/modules/overworld/overworld-events';
@@ -11,8 +11,6 @@ import { OverhexController } from '@exile/client/game/modules/overworld/map/over
  * be set before adding to the scene.
  */
 export class MapTerritoryCmp extends Component {
-
-    private cursor = this.inject(Cursor);
 
     private overhexController = this.provide(OverhexController);
 
@@ -27,21 +25,19 @@ export class MapTerritoryCmp extends Component {
 
     private selected = false;
 
-    public actions = {
-        setTerritoryInfo: (territory: Territory): void => {
-            this.overhexController.renderTerritory(territory);
+    public setTerritoryInfo(territory: Territory): void {
+        this.overhexController.renderTerritory(territory);
 
-            this.updateStyle();
+        this.updateStyle();
 
-            this.active = territory.claim !== ClaimState.Unknown
-                && territory.claim !== ClaimState.Blocked;
-            this.territoryId = territory.id;
-        },
+        this.active = territory.claim !== ClaimState.Unknown
+            && territory.claim !== ClaimState.Blocked;
+        this.territoryId = territory.id;
+    }
 
-        setSelected: (value: boolean): void => {
-            this.selected = value;
-            this.updateStyle();
-        },
+    public setSelected(value: boolean): void {
+        this.selected = value;
+        this.updateStyle();
     }
 
     protected onInit(): void {
@@ -49,7 +45,7 @@ export class MapTerritoryCmp extends Component {
             if (this.active) {
                 this.hovered = true;
                 this.updateStyle();
-                this.cursor.setCursor(CursorType.Pointer);
+                this.io.setCursor(CursorType.Pointer);
             }
         });
 
@@ -57,7 +53,7 @@ export class MapTerritoryCmp extends Component {
             if (this.active) {
                 this.hovered = false;
                 this.updateStyle();
-                this.cursor.reset();
+                this.io.resetCursor();
             }
         });
 

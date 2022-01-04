@@ -23,10 +23,6 @@ export class AdvTextCmp extends Component {
 
     private margin = 48;
 
-    public actions = {
-        updateText: (newText: string): void => this.updateText(newText),
-    };
-
     constructor() {
         super();
 
@@ -45,6 +41,25 @@ export class AdvTextCmp extends Component {
         this.textMesh.maxWidth = width;
         this.textMesh.overflowWrap = 'break-word';
         this.textMesh.anchorY = 'bottom';
+    }
+
+    public updateText(text: string): void {
+        assert(this.textMesh);
+
+        const textUnchanged = this.textMesh.text === text;
+
+        this.textMesh.text = text;
+        this.drawLength = text.length;
+        this.drawStart = 0;
+        this.drawing = false;
+
+        setTextLength(this.textMesh, 0);
+
+        if (textUnchanged) {
+            this.drawing = true;
+        } else {
+            this.textMesh.sync(() => this.drawing = true);
+        }
     }
 
     protected onInit(): void {
@@ -82,25 +97,6 @@ export class AdvTextCmp extends Component {
                     }
                 }
             }
-        }
-    }
-
-    private updateText(text: string): void {
-        assert(this.textMesh);
-
-        const textUnchanged = this.textMesh.text === text;
-
-        this.textMesh.text = text;
-        this.drawLength = text.length;
-        this.drawStart = 0;
-        this.drawing = false;
-
-        setTextLength(this.textMesh, 0);
-
-        if (textUnchanged) {
-            this.drawing = true;
-        } else {
-            this.textMesh.sync(() => this.drawing = true);
         }
     }
 }

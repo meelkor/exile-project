@@ -1,4 +1,4 @@
-import { GlobalTreeNode } from '@exile/client/engine/core/global-tree-node';
+import { SignedHandler } from '@exile/client/engine/core/signed-handler';
 import { TreeNode } from '@exile/client/engine/core/tree-node';
 import { assert } from '@exile/common/utils/assert';
 import { InjectableGlobal } from '@exile/common/utils/di';
@@ -7,15 +7,13 @@ export abstract class Events<TEvent extends SupportedEventType, TPayloads extend
 
     private listeners: Map<TEvent, Set<EventHandlerInfo<this, TEvent, TPayloads, TReturn>>> = new Map();
 
-    private listenersByNode: Map<TreeNode | null, Map<TEvent, EventHandlerInfo<this, TEvent, TPayloads, TReturn>[]>> = new Map();
+    private listenersByNode: Map<number, Map<TEvent, EventHandlerInfo<this, TEvent, TPayloads, TReturn>[]>> = new Map();
 
-    public on<T extends TEvent>(event: T, handler: (payload: TPayloads[T], from: this) => TReturn): void {
-        const currentNode = GlobalTreeNode.get();
-
+    public on<T extends TEvent>(event: T, { handler, nodeId }: SignedHandler<(payload: TPayloads[T], from: this) => TReturn>): void {
         const handlerInfo = {
             handler,
-            node: currentNode,
-        } as EventHandlerInfo<this, TEvent, TPayloads, TReturn>;
+            node: nodeId,
+        } as unknown as EventHandlerInfo<this, TEvent, TPayloads, TReturn>;
 
         let set = this.listeners.get(event);
 
@@ -26,11 +24,11 @@ export abstract class Events<TEvent extends SupportedEventType, TPayloads extend
 
         set.add(handlerInfo);
 
-        let nodeEventMap = this.listenersByNode.get(currentNode);
+        let nodeEventMap = this.listenersByNode.get(nodeId);
 
         if (!nodeEventMap) {
             nodeEventMap = new Map();
-            this.listenersByNode.set(currentNode, nodeEventMap);
+            this.listenersByNode.set(nodeId, nodeEventMap);
         }
 
         let evArray = nodeEventMap.get(event);
@@ -43,8 +41,8 @@ export abstract class Events<TEvent extends SupportedEventType, TPayloads extend
         evArray.push(handlerInfo);
     }
 
-    public offNode(node: TreeNode): void {
-        const eventMap = this.listenersByNode.get(node) || [];
+    public offNode(nodeId: number): void {
+        const eventMap = this.listenersByNode.get(nodeId) || [];
 
         for (const [event, handlers] of eventMap) {
             const listeners = this.listeners.get(event);
@@ -56,7 +54,7 @@ export abstract class Events<TEvent extends SupportedEventType, TPayloads extend
             }
         }
 
-        this.listenersByNode.delete(node);
+        this.listenersByNode.delete(nodeId);
     }
 
     protected emit(event: TEvent, payload: TPayloads[TEvent]): void {
@@ -64,25 +62,21 @@ export abstract class Events<TEvent extends SupportedEventType, TPayloads extend
 
         if (handlers) {
             for (const handlerInfo of handlers) {
-                GlobalTreeNode.set(handlerInfo.node);
                 handlerInfo.handler(payload, this);
-                GlobalTreeNode.clear(handlerInfo.node);
             }
         }
     }
 
-    protected nodeListensOnEvent(node: TreeNode, event: TEvent): boolean {
-        return !!this.listenersByNode.get(node)?.has(event);
+    protected nodeListensOnEvent(nodeId: number, event: TEvent): boolean {
+        return !!this.listenersByNode.get(nodeId)?.has(event);
     }
 
-    protected emitForNode(node: TreeNode, event: TEvent, payload: TPayloads[TEvent]): TReturn[] {
-        const handlers = this.listenersByNode.get(node)?.get(event);
+    protected emitForNode(nodeId: number, event: TEvent, payload: TPayloads[TEvent]): TReturn[] {
+        const handlers = this.listenersByNode.get(nodeId)?.get(event);
 
         assert(handlers?.length, 'Cannot emit event for node without handlers');
 
-        GlobalTreeNode.set(node);
         const returnVals = handlers.map(({ handler }) => handler(payload, this));
-        GlobalTreeNode.clear(node);
 
         return returnVals;
     }

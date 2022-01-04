@@ -13,7 +13,7 @@ export class MapEditorScn extends Scene {
 
         const globalStateModule = this.store.require(GlobalStateModule);
 
-        map.actions.setTerritories(globalStateModule.getTerritoryList());
+        map.setTerritories(globalStateModule.getTerritoryList());
 
         this.add(editor);
         this.add(cameraTrap);

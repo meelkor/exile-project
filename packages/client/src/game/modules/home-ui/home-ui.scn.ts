@@ -10,30 +10,28 @@ export class HomeUiScene extends RootScene {
 
     private currentTerritoryDialog?: DialogCmp;
 
-    public override actions = {
-        onSelectedTerritory: ({ after }: RefChange<number>, globalModule: GlobalStateModule): void => {
-            if (this.currentTerritoryDialog) {
-                this.destroy(this.currentTerritoryDialog);
-                this.currentTerritoryDialog = undefined;
-            }
+    public onSelectedTerritory({ after }: RefChange<number>, globalModule: GlobalStateModule): void {
+        if (this.currentTerritoryDialog) {
+            this.destroy(this.currentTerritoryDialog);
+            this.currentTerritoryDialog = undefined;
+        }
 
-            if (after) {
-                const t = globalModule.findTerritory(after);
+        if (after) {
+            const t = globalModule.findTerritory(after);
 
-                this.currentTerritoryDialog = this.dialogService.open({
-                    title: `Territory ${t.id}`,
-                    width: 380,
-                    zIndex: 0.9,
-                });
+            this.currentTerritoryDialog = this.dialogService.open({
+                title: `Territory ${t.id}`,
+                width: 380,
+                zIndex: 0.9,
+            });
 
-                this.add(this.currentTerritoryDialog);
-            }
-        },
-    };
+            this.add(this.currentTerritoryDialog);
+        }
+    }
 
     protected onAdd(): void {
         const globalModule = this.store.require(GlobalStateModule);
 
-        globalModule.on(GlobalModuleChange.SelectedTerritory, this.actions.onSelectedTerritory);
+        globalModule.on(GlobalModuleChange.SelectedTerritory, this.sign(this.onSelectedTerritory));
     }
 }

@@ -6,7 +6,6 @@ import { Renderer } from '@exile/client/engine/renderer-gl/renderer';
 import { CursorEvent, CursorEventType, InputObserver } from '@exile/client/engine/input/input-observer';
 import { ViewEventHandler } from '@exile/client/engine/input/view-event-handler';
 import { ViewObjectQuery } from '@exile/client/engine/input/view-object-query';
-import { NodeIntersection } from '@exile/client/engine/renderer-gl/internal/intersection';
 import { Pos } from '@exile/common/types/geometry';
 import { MeshLike } from '@exile/common/types/mesh-like';
 
@@ -24,7 +23,7 @@ export class ViewEvents extends InjectableGlobal {
 
     private handlers: ListMap<number, ViewEventHandler> = new ListMap();
 
-    private hoveredMeshes: Set<three.Mesh> = new Set();
+    private hoveredMeshes: Map<three.Mesh, Pos> = new Map();
 
     public emitEvents(): void {
         for (const e of this.inputObserver.getEvents()) {
@@ -38,58 +37,36 @@ export class ViewEvents extends InjectableGlobal {
      */
     private translateAndEmit(e: CursorEvent): void {
         if (e.type === CursorEventType.Move) {
-            const grouped: GroupedIntersections = e.from
-                ? this.groupIntersections(e.from, e.to)
-                : {
-                    aOnly: [],
-                    bOnly: this.renderer.project(e.to),
-                    both: [],
-                };
-
-            // MouseMove and MouseIn have very similar roles so it is (probably)
-            // desired that one stops another.
-            let stopInAndMove = false;
-
-            // TODO: mouseout needs to be also called on those that are BOTH
-            //  but under the one, that blocked mousemove
-            for (const int of grouped.aOnly) {
-                this.hoveredMeshes.delete(int.mesh);
-
-                stopInAndMove = this.emit(int.mesh, ViewEventType.MouseOut, null);
-
-                if (stopInAndMove) {
-                    break;
-                }
-            }
+            const intersections = this.renderer.project(e.to);
 
             /**
              * Nodes that remain in this set after all the mousemove iterations
-             * became unhovered without proper DOM event happened (probably
-             * changed location on frame.)
+             * became unhovered
              */
-            const zombieNodes = new Set(this.hoveredMeshes);
+            const zombieNodes = new Set(this.hoveredMeshes.keys());
+            let moveEffectsStopped = false;
 
-            if (!stopInAndMove) {
-                for (const [intFrom, intTo] of grouped.both) {
-                    stopInAndMove = this.emit(intFrom.mesh, ViewEventType.MouseMove, {
-                        from: intFrom.position,
-                        to: intTo.position,
-                    });
+            for (const int of intersections) {
+                const hoveredPosition = this.hoveredMeshes.get(int.mesh);
+                const fromPosition = hoveredPosition ? hoveredPosition : int.position;
 
-                    zombieNodes.delete(intFrom.mesh);
-
-                    if (stopInAndMove) {
-                        break;
-                    }
-                }
-            }
-
-            for (const int of grouped.bOnly) {
-                this.hoveredMeshes.add(int.mesh);
                 zombieNodes.delete(int.mesh);
 
-                if (this.emit(int.mesh, ViewEventType.MouseIn, null)) {
-                    break;
+                if (!moveEffectsStopped) {
+                    if (!hoveredPosition) {
+                        this.emit(int.mesh, ViewEventType.MouseIn, null);
+                    }
+
+                    this.hoveredMeshes.set(int.mesh, int.position);
+                }
+
+                const stop = this.emit(int.mesh, ViewEventType.MouseMove, {
+                    from: fromPosition,
+                    to: int.position,
+                });
+
+                if (stop) {
+                    moveEffectsStopped = stop;
                 }
             }
 
@@ -117,23 +94,25 @@ export class ViewEvents extends InjectableGlobal {
                 }
             }
         } else if (e.type === CursorEventType.Click) {
-            const groups = this.groupIntersections(e.from, e.to);
+            const intersections = this.renderer.project(e.to);
 
-            for (const [, int] of groups.both) {
-                const payload = {
-                    pos: {
-                        x: int.position.x,
-                        y: int.position.y,
-                    },
-                };
+            for (const int of intersections) {
+                if (this.hoveredMeshes.has(int.mesh)) {
+                    const payload = {
+                        pos: {
+                            x: int.position.x,
+                            y: int.position.y,
+                        },
+                    };
 
-                if (this.emit(int.mesh, ViewEventType.Click, payload)) {
-                    break;
+                    if (this.emit(int.mesh, ViewEventType.Click, payload)) {
+                        break;
+                    }
                 }
             }
         } else if (e.type === CursorEventType.Leave) {
-            for (const int of this.renderer.project(e.lastPos)) {
-                this.emit(int.mesh, ViewEventType.MouseOut, null);
+            for (const mesh of this.hoveredMeshes.keys()) {
+                this.emit(mesh, ViewEventType.MouseOut, null);
             }
         } else if (e.type === CursorEventType.Wheel) {
             for (const int of this.renderer.project(e.pos)) {
@@ -207,51 +186,12 @@ export class ViewEvents extends InjectableGlobal {
 
         const ok = (q.meshId === undefined || q.meshId === mesh.id)
             && (q.treeNode === undefined || q.treeNode === mesh.userData.nodeId)
-            && (!q.tags || q.tags.every(t => mesh.tags && mesh.tags.has(t)));
+            && (!q.tags || q.tags.every(t => mesh.userData.tags && mesh.userData.tags.has(t)));
 
         if (ok) {
             mesh[HANDLERS_KEY][handler.event].push(handler.callback);
             mesh.userData.interactive = true;
         }
-    }
-
-    /**
-     * Group intersection depending on whether the object was found on both
-     * positions or not. This is used to determine whether event should be
-     * translated to Mouse In / Out or whether user didn't move between two
-     * components during the click.
-     */
-    private groupIntersections(a: Pos, b: Pos): GroupedIntersections {
-        const aInts = this.renderer.project(a);
-        const bInts = this.renderer.project(b);
-
-        const bIntMap = new Map(bInts.map(int => [int.mesh.id, int]));
-
-        const out: GroupedIntersections = {
-            aOnly: [],
-            bOnly: [],
-            both: [],
-        };
-
-        for (const int of aInts) {
-            if (bIntMap.has(int.mesh.id)) {
-                if (this.hoveredMeshes.has(int.mesh)) {
-                    out.both.push([int, bIntMap.get(int.mesh.id)!]);
-                } else {
-                    out.bOnly.push(int);
-                }
-
-                bIntMap.delete(int.mesh.id);
-            } else {
-                out.aOnly.push(int);
-            }
-        }
-
-        for (const int of bIntMap.values()) {
-            out.bOnly.push(int);
-        }
-
-        return out;
     }
 
     private emit<T extends ViewEventType>(mesh: three.Mesh, event: T, payload: ViewEventMap[T]['info']): boolean {
@@ -278,12 +218,4 @@ function isRegisteredMesh(v: three.Object3D): v is RegisteredMesh {
 
 type RegisteredMesh = MeshLike & {
     [HANDLERS_KEY]: Record<ViewEventType, ViewEventListener[]>;
-    tags?: Set<number>;
 }
-
-interface GroupedIntersections {
-    aOnly: NodeIntersection[];
-    bOnly: NodeIntersection[];
-    both: [NodeIntersection, NodeIntersection][];
-}
-

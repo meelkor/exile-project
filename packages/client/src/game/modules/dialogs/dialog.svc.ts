@@ -28,7 +28,7 @@ export class DialogService extends InjectableGlobal {
 
             title.text = options.title;
 
-            dialog.actions.addFeature(title);
+            dialog.addFeature(title);
         }
 
         return dialog;

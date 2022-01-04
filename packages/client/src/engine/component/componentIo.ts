@@ -5,12 +5,15 @@ import { Injectable } from '@exile/common/utils/di';
 import { MeshLike } from '@exile/common/types/mesh-like';
 import { Renderer } from '@exile/client/engine/renderer-gl/renderer';
 import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
+import { Cursor, CursorType } from '@exile/client/engine/view/cursor';
 
 export class ComponentIo extends Injectable {
 
     private viewEvents = this.inject(ViewEvents);
 
     private renderer = this.inject(Renderer);
+
+    private cursor = this.inject(Cursor);
 
     constructor(private nodeId: number) {
         super();
@@ -42,6 +45,7 @@ export class ComponentIo extends Injectable {
      * registering with events etc.
      */
     public add(plane: PlaneName, mesh: MeshLike): void {
+        mesh.userData.nodeId = this.nodeId;
         this.renderer.getScene(plane).add(mesh);
         this.viewEvents.registerMesh(mesh);
     }
@@ -54,6 +58,17 @@ export class ComponentIo extends Injectable {
         this.renderer.getScene(plane).remove(mesh);
         // todo
         // this.viewEvents.deregisterMesh(mesh);
+    }
+
+    public setCursor(cursor: CursorType): void {
+        this.cursor.cursorStack.delete(this.nodeId);
+        this.cursor.cursorStack.push(this.nodeId, cursor);
+        this.cursor.update();
+    }
+
+    public resetCursor(): void {
+        this.cursor.cursorStack.delete(this.nodeId);
+        this.cursor.update();
     }
 }
 

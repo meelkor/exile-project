@@ -62,7 +62,7 @@ export class MapEditorCmp extends Component {
                 onClick: () => this.state.setTool(tool),
             });
 
-            this.buttonBar.actions.addButton(id, button);
+            this.buttonBar.addButton(id, button);
         }
 
         this.updateActiveTool(this.state.getState().currentTool);
@@ -126,7 +126,7 @@ export class MapEditorCmp extends Component {
     }
 
     private updateActiveTool = (tool: MapEditorTool): void => {
-        this.buttonBar.actions.setActive(editorToolUuid(tool));
+        this.buttonBar.setActive(editorToolUuid(tool));
     }
 
     private handleClick = ({ info }: ViewEvent<ButtonViewInfo>): void => {

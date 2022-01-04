@@ -44,12 +44,3 @@ export class WorldPlane extends GlPlane {
         this.camera.position.setZ(this.camera.position.z * delta);
     }
 }
-
-declare module '../mesh' {
-    export interface MeshUserData {
-        /**
-         * If true, mouse events on this mesh will control camera
-         */
-        worldCameraOwner?: boolean;
-    }
-}

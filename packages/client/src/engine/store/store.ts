@@ -1,5 +1,4 @@
 import { EventsQueued } from '@exile/client/engine/core/events-queued';
-import { TreeNode } from '@exile/client/engine/core/tree-node';
 import { StateModule } from '@exile/client/engine/store/state-module';
 import { Constructor } from '@exile/common/types/class';
 import { assert } from '@exile/common/utils/assert';
@@ -27,9 +26,9 @@ export class Store extends InjectableGlobal {
         return instance as T;
     }
 
-    public offNode(node: TreeNode): void {
+    public offNode(nodeId: number): void {
         for (const stateModule of this.registeredStates.values()) {
-            stateModule.offNode(node);
+            stateModule.offNode(nodeId);
         }
     }
 

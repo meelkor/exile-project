@@ -37,8 +37,6 @@ export class EditorButtonCmp extends Component {
     private bgMesh?: NodeMesh<three.BufferGeometry, three.MeshBasicMaterial>;
     private iconMesh?: Text;
 
-    public readonly actions = {};
-
     public update(options: Partial<EditorButtonOptions>): this {
         Object.assign(this.options, options);
 

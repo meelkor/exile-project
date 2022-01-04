@@ -16,7 +16,7 @@ export class OverworldScene extends RootScene {
 
         const globalStateModule = this.store.require(GlobalStateModule);
 
-        map.actions.setTerritories(globalStateModule.getTerritoryList());
+        map.setTerritories(globalStateModule.getTerritoryList());
 
         this.add(map);
         this.add(cameraTrap);
@@ -28,24 +28,24 @@ export class OverworldScene extends RootScene {
     private registerGameEventListeners(): void {
         const globalStateModule = this.store.require(GlobalStateModule);
 
-        this.gameEvents.on(OverworldEvents.SelectTerritory, payload => {
+        this.gameEvents.on(OverworldEvents.SelectTerritory, this.sign(payload => {
             const territoryId = asNumberOrUndefined(payload);
 
             globalStateModule.selectTerritory(territoryId);
-        });
+        }));
     }
 
     private registerStoreListeners(map: MapCmp): void {
         const globalStateModule = this.store.require(GlobalStateModule);
 
-        globalStateModule.on(GlobalModuleChange.SelectedTerritory, ({ after, before }) => {
+        globalStateModule.on(GlobalModuleChange.SelectedTerritory, this.sign(({ after, before }) => {
             if (before) {
-                map.actions.deselectTerritory(before);
+                map.deselectTerritory(before);
             }
 
             if (after) {
-                map.actions.selectTerritory(after);
+                map.selectTerritory(after);
             }
-        });
+        }));
     }
 }

@@ -1,22 +1,20 @@
 import { Component } from '@exile/client/engine/component/component';
-import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
 import * as three from 'three';
 import { WorldPlane } from '@exile/client/engine/renderer-gl/planes/world-plane';
 import { ViewEventType } from '@exile/client/engine/input/view-event-type';
 import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
+import { Pos } from '@exile/common/types/geometry';
 
 export class CameraTrapCmp extends Component {
 
-    public actions = {};
-
     private worldPlane = this.inject(WorldPlane);
 
-    private moving = false;
+    private movingFrom?: Pos;
 
     protected onInit(): void {
         const trapGeometry = new three.PlaneBufferGeometry(1000, 1000, 1, 1);
 
-        const mesh = new NodeMesh(trapGeometry, undefined, true);
+        const mesh = new three.Mesh(trapGeometry, undefined);
 
         mesh.visible = false;
 
@@ -24,24 +22,25 @@ export class CameraTrapCmp extends Component {
 
         this.io.add(PlaneName.World, mesh);
 
-        this.io.onInput(ViewEventType.MouseDown, () => {
-            this.moving = true;
+        this.io.onInput(ViewEventType.MouseDown, e => {
+            this.movingFrom = e.info.pos;
             return true;
         });
 
         this.io.onInput(ViewEventType.MouseUp, () => {
-            this.moving = false;
+            this.movingFrom = undefined;
             return true;
         });
 
         this.io.onInput(ViewEventType.MouseOut, () => {
-            this.moving = false;
+            this.movingFrom = undefined;
             return true;
         });
 
         this.io.onInput(ViewEventType.MouseMove, (e) => {
-            if (this.moving) {
-                this.worldPlane.pan(e.info.from, e.info.to);
+            if (this.movingFrom) {
+                this.worldPlane.pan(this.movingFrom, e.info.to);
+                return true;
             }
         });
 

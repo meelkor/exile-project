@@ -1,6 +1,5 @@
 import { Component } from '@exile/client/engine/component/component';
 import { UiPlane, UiSize } from '@exile/client/engine/renderer-gl/planes/ui-plane';
-import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
 import * as three from 'three';
 import { assert } from '@exile/common/utils/assert';
 import { DialogCounter } from '@exile/client/game/modules/dialogs/dialogCounter';
@@ -24,7 +23,7 @@ export class DialogCmp extends Component {
         y: 0,
     };
 
-    private dialogMesh?: NodeMesh<three.PlaneBufferGeometry, three.MeshBasicMaterial>;
+    private dialogMesh?: three.Mesh<three.PlaneBufferGeometry, three.MeshBasicMaterial>;
 
     private uiPlane = this.inject(UiPlane);
 
@@ -39,13 +38,11 @@ export class DialogCmp extends Component {
         };
     }
 
-    public actions = {
-        addFeature: (featCmp: DialogFeature): void => {
-            featCmp.offset = this._offset;
+    public addFeature(featCmp: DialogFeature): void {
+        featCmp.offset = this._offset;
 
-            this.add(featCmp);
-        },
-    };
+        this.add(featCmp);
+    }
 
     protected onInit(): void {
         assert(this.width, 'No width set');
@@ -79,7 +76,7 @@ export class DialogCmp extends Component {
 
         material.transparent = true;
 
-        this.dialogMesh = new NodeMesh(plane, material, true);
+        this.dialogMesh = new three.Mesh(plane, material);
 
         this.dialogMesh.position.set(
             this._offset.x + width / 2,

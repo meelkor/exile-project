@@ -10,27 +10,25 @@ export class MapCmp extends Component {
 
     protected overhexController = this.provide(OverhexController);
 
-    public actions = {
-        setTerritories: (territories: Territory[]): void => {
-            this.overhexController.register(territories);
+    public setTerritories(territories: Territory[]): void {
+        this.overhexController.register(territories);
 
-            for (const territory of territories) {
-                const cmp = this.instantiate(MapTerritoryCmp);
-                cmp.actions.setTerritoryInfo(territory);
-                this.territories.set(territory.id, cmp);
-            }
-        },
+        for (const territory of territories) {
+            const cmp = this.instantiate(MapTerritoryCmp);
+            cmp.setTerritoryInfo(territory);
+            this.territories.set(territory.id, cmp);
+        }
+    }
 
-        selectTerritory: (id: number): void => {
-            ensure(this.territories.get(id), `Missing territory #${id}`)
-                .actions.setSelected(true);
-        },
+    public selectTerritory(id: number): void {
+        ensure(this.territories.get(id), `Missing territory #${id}`)
+            .setSelected(true);
+    }
 
-        deselectTerritory: (id: number): void => {
-            ensure(this.territories.get(id), `Missing territory #${id}`)
-                .actions.setSelected(false);
-        },
-    };
+    public deselectTerritory(id: number): void {
+        ensure(this.territories.get(id), `Missing territory #${id}`)
+            .setSelected(false);
+    }
 
 
     protected onInit(): void {

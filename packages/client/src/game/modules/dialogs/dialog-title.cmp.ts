@@ -10,8 +10,6 @@ export class DialogTitleCmp extends DialogFeature {
 
     public text = '';
 
-    public actions = {};
-
     private textMesh?: Text;
 
     private uiPlane = this.inject(UiPlane);

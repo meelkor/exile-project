@@ -4,8 +4,6 @@ import { AdvUiCmp } from '@exile/client/game/modules/adv/adv-ui.cmp';
 
 export class AdvScene extends RootScene {
 
-    public override actions = {};
-
     protected onAdd(): void {
         this.add(this.instantiate(AdvTextCmp));
         this.add(this.instantiate(AdvUiCmp));
