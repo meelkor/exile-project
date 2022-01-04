@@ -1,11 +1,10 @@
 import * as three from 'three';
 import { Text } from 'troika-three-text';
 import { Component } from '@exile/client/engine/component/component';
-import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
 import iconFont from '@exile/client/resources/fonts/icons/font.ttf';
 import { Pos } from '@exile/common/types/geometry';
 import { ButtonViewInfo, ViewEventType } from '@exile/client/engine/input/view-event-type';
-import { Cursor, CursorType } from '@exile/client/engine/view/cursor';
+import { CursorType } from '@exile/client/engine/view/cursor';
 import { assert } from '@exile/common/utils/assert';
 import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
 
@@ -17,8 +16,6 @@ import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
 export class EditorButtonCmp extends Component {
 
     private static bgGeometry = new three.PlaneBufferGeometry(32, 32);
-
-    private cursor = this.inject(Cursor);
 
     private options: EditorButtonOptions = {
         icon: '',
@@ -34,7 +31,7 @@ export class EditorButtonCmp extends Component {
 
     private needsUpdate: boolean = false;
 
-    private bgMesh?: NodeMesh<three.BufferGeometry, three.MeshBasicMaterial>;
+    private bgMesh?: three.Mesh<three.BufferGeometry, three.MeshBasicMaterial>;
     private iconMesh?: Text;
 
     public update(options: Partial<EditorButtonOptions>): this {
@@ -46,10 +43,9 @@ export class EditorButtonCmp extends Component {
     }
 
     public onInit(): void {
-        this.bgMesh = new NodeMesh(
+        this.bgMesh = new three.Mesh(
             EditorButtonCmp.bgGeometry,
             new three.MeshBasicMaterial(),
-            true,
         );
         this.iconMesh = new Text();
 
@@ -66,14 +62,14 @@ export class EditorButtonCmp extends Component {
         this.io.onInput(ViewEventType.MouseIn, () => {
             this.hovered = true;
             this.needsUpdate = true;
-            this.cursor.setCursor(CursorType.Pointer);
+            this.io.setCursor(CursorType.Pointer);
             return true;
         });
 
         this.io.onInput(ViewEventType.MouseOut, () => {
             this.hovered = false;
             this.needsUpdate = true;
-            this.cursor.reset();
+            this.io.resetCursor();
             return true;
         });
     }

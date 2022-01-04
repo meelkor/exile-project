@@ -18,19 +18,27 @@ export class MapEditorStateModule extends StateModule<MapEditorState, MapEditorE
         this.state.currentTool = tool;
         this.emit(MapEditorEvent.ToolChanged, tool);
     }
+
+    public setActiveObject(objId?: number): void {
+        this.state.activeObject = objId;
+        this.emit(MapEditorEvent.ActiveObjectChanged, objId);
+    }
 }
 
 export interface MapEditorState {
     objects: OverhexObject[];
     currentTool: MapEditorTool;
+    activeObject?: number;
 }
 
 export enum MapEditorEvent {
     ObjectAdded,
     ToolChanged,
+    ActiveObjectChanged,
 }
 
 interface MapEditorPayloads {
     [MapEditorEvent.ObjectAdded]: OverhexObject;
     [MapEditorEvent.ToolChanged]: MapEditorTool;
+    [MapEditorEvent.ActiveObjectChanged]: number | undefined;
 }

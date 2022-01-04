@@ -1,6 +1,5 @@
 import * as three from 'three';
 import { Component } from '@exile/client/engine/component/component';
-import { NodeMesh } from '@exile/client/engine/renderer-gl/mesh';
 import { OverhexStyle } from '@exile/client/game/modules/overworld/map/overhex/overhex-style';
 import { ButtonViewInfo, ViewEvent, ViewEventType } from '@exile/client/engine/input/view-event-type';
 import { Store } from '@exile/client/engine/store/store';
@@ -13,6 +12,10 @@ import { EditorButtonBarCmp } from '@exile/client/game/modules/overworld/editor/
 import { editorToolUuid, MapEditorTool, MapEditorToolType as MapEditorToolName } from '@exile/client/game/modules/overworld/editor/map-editor-tool';
 import { PlaneName } from '@exile/client/engine/renderer-gl/planes/plane-name';
 import { TAG_OVERHEX_OBJECT } from '@exile/client/game/modules/overworld/map/overhex/overhex-tags';
+import { getMeshObjectId } from '@exile/client/engine/renderer-gl/mesh-object-id';
+import { exists } from '@exile/common/utils/assert';
+import { WorldPlane } from '@exile/client/engine/renderer-gl/planes/world-plane';
+import { assert } from 'chai';
 
 /**
  * Component displaying overlay for editing overhex-style maps
@@ -21,6 +24,8 @@ export class MapEditorCmp extends Component {
 
     private uiPlane = this.inject(UiPlane);
 
+    private worldPlane = this.inject(WorldPlane);
+
     private overhexStyle = this.inject(OverhexStyle);
 
     private store = this.inject(Store);
@@ -28,8 +33,6 @@ export class MapEditorCmp extends Component {
     private state = this.store.require(MapEditorStateModule);
 
     private buttonBar: EditorButtonBarCmp;
-
-    public actions = {};
 
     constructor() {
         super();
@@ -92,7 +95,7 @@ export class MapEditorCmp extends Component {
 
     private createTrap(): void {
         const trapGeometry = new three.PlaneBufferGeometry(1000, 1000, 1, 1);
-        const mesh = new NodeMesh(trapGeometry, undefined, true);
+        const mesh = new three.Mesh(trapGeometry, undefined);
 
         mesh.visible = false;
         mesh.position.set(0, 0, this.overhexStyle.territoryHeight / 2 + 0.001);
@@ -100,29 +103,52 @@ export class MapEditorCmp extends Component {
         this.io.add(PlaneName.World, mesh);
 
         this.io.onInput(ViewEventType.Click, this.handleClick);
-        this.state.on(MapEditorEvent.ToolChanged, this.updateActiveTool);
+        this.state.on(MapEditorEvent.ToolChanged, this.sign(this.updateActiveTool));
 
         let visibleEdges: three.LineSegments | undefined;
 
-        this.io.queryInput(ViewEventType.MouseIn, {
-            tags: [TAG_OVERHEX_OBJECT],
-        }, (e) => {
-            const edges = new three.EdgesGeometry(e.mesh.geometry);
-            const lineMat = new three.LineBasicMaterial({ color: 0xffffff });
-            lineMat.transparent = true;
-            visibleEdges = new three.LineSegments(edges, new three.LineBasicMaterial({ color: 0xffffff }));
-            visibleEdges.scale.copy(e.mesh.scale);
-            visibleEdges.position.copy(e.mesh.position);
-            this.io.add(PlaneName.World, visibleEdges);
-        });
+        this.io.queryInput(
+            ViewEventType.MouseIn,
+            { tags: [TAG_OVERHEX_OBJECT] },
+            (e) => this.state.setActiveObject(e.mesh.userData.objectId),
+        );
 
         this.io.queryInput(ViewEventType.MouseOut, {
             tags: [TAG_OVERHEX_OBJECT],
-        }, () => {
+        }, e => {
+            const activeId = this.state.getState().activeObject;
+
+            if (e.mesh.userData.objectId === activeId) {
+                this.state.setActiveObject();
+            }
+        });
+
+        // Stop propagating all mouse events on editable objects
+        this.io.queryInput(ViewEventType.MouseMove, {
+            tags: [TAG_OVERHEX_OBJECT],
+        }, () => true);
+
+        this.state.on(MapEditorEvent.ActiveObjectChanged, this.sign(newId => {
             if (visibleEdges) {
                 this.io.remove(PlaneName.World, visibleEdges);
             }
-        });
+
+            if (exists(newId)) {
+                const objMesh = this.worldPlane.scene.children
+                    .find(obj => (obj as three.Mesh).userData.objectId === newId) as three.Mesh;
+
+                assert(objMesh, 'Active object mesh is not part of the scene');
+
+                const edges = new three.EdgesGeometry(objMesh.geometry);
+                const lineMat = new three.LineBasicMaterial({ color: 0xffffff });
+                lineMat.transparent = true;
+                visibleEdges = new three.LineSegments(edges, new three.LineBasicMaterial({ color: 0xffffff }));
+                visibleEdges.scale.copy(objMesh.scale);
+                visibleEdges.position.copy(objMesh.position);
+                this.io.add(PlaneName.World, visibleEdges);
+            }
+        }));
+
     }
 
     private updateActiveTool = (tool: MapEditorTool): void => {
@@ -136,6 +162,7 @@ export class MapEditorCmp extends Component {
             this.state.addObject({
                 pos: info.pos,
                 type: tool.param,
+                id: getMeshObjectId(),
             });
         }
     };

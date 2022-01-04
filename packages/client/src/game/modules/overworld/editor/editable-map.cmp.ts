@@ -14,8 +14,8 @@ export class EditableMapCmp extends MapCmp {
 
         const stateModule = this.inject(Store).require(MapEditorStateModule);
 
-        stateModule.on(MapEditorEvent.ObjectAdded, obj => {
+        stateModule.on(MapEditorEvent.ObjectAdded, this.sign(obj => {
             this.overhexController.renderStandaloneObject(obj);
-        });
+        }));
     }
 }
